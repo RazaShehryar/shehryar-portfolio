@@ -149,7 +149,7 @@ export function ProjectShowcase({ project, index }: { project: Project; index: n
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              {project.preview && (
+              {project.preview ? (
                 <button
                   type="button"
                   onClick={() => setPreviewOpen(true)}
@@ -159,6 +159,22 @@ export function ProjectShowcase({ project, index }: { project: Project; index: n
                   <MousePointerClick className="h-3.5 w-3.5" />
                   Explore it here
                 </button>
+              ) : (
+                project.status === "live" &&
+                project.links[0] && (
+                  // This site sends framing headers that would render an embed
+                  // blank, so the primary action opens it properly instead.
+                  <a
+                    href={project.links[0].href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-ink transition-transform hover:scale-[1.03]"
+                    style={{ background: project.accent }}
+                  >
+                    Visit the live site
+                    <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </a>
+                )
               )}
               {project.links.map((l) => (
                 <a

@@ -140,7 +140,7 @@ export const featured: Project[] = [
     blurb: "Operations software for Amazon delivery partners",
     description:
       "A workforce platform for Amazon delivery service partners, covering scheduling, driver coaching, compliance and performance tracking. Built for the operators who run those fleets day to day.",
-    year: "2024 — 2025",
+    year: "2024 — Present",
     role: "Frontend engineer",
     accent: "#16A97F",
     status: "live",
