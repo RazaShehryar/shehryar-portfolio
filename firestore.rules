@@ -59,6 +59,16 @@ service cloud.firestore {
       allow write: if onlyKey('depth') && request.resource.data.depth is map;
     }
 
+    // Write-once markers proving a fingerprint has been counted for a given
+    // day. Create is allowed and every other operation is refused, which is
+    // what lets the client learn "already counted?" from a failed write
+    // without ever being able to read the set back. Nothing but a literal 1
+    // is stored against the key.
+    match /visitorDays/{id} {
+      allow create: if onlyKey('t') && request.resource.data.t == 1;
+      allow read, update, delete: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

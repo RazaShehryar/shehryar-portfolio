@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import type { User } from "firebase/auth";
-import { LogOut, ShieldAlert } from "lucide-react";
+import { Lock, LogOut, ShieldAlert } from "lucide-react";
 import { ADMIN_EMAIL, isAdmin, signInWithGoogle, signOutAdmin, watchAuth } from "@/lib/auth";
 import { Dashboard } from "@/components/admin/dashboard";
-import { GithubIcon } from "@/components/icons";
+import { GoogleIcon } from "@/components/icons";
 
 export default function AdminPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -56,18 +56,21 @@ export default function AdminPage() {
       <Shell>
         <div className="w-full max-w-sm rounded-2xl border border-line bg-white/[0.02] p-8 text-center">
           <div className="mx-auto mb-5 flex h-11 w-11 items-center justify-center rounded-full bg-accent/15">
-            <GithubIcon className="h-5 w-5 text-accent" />
+            <Lock className="h-5 w-5 text-accent" />
           </div>
           <h1 className="mb-1.5 text-xl font-semibold tracking-tight">Admin</h1>
           <p className="mb-7 text-sm text-muted">
             Sign in to see traffic, sources and enquiries.
           </p>
+          {/* Google's own button spec: white surface, #747775 border,
+              #1f1f1f label, logo untouched. */}
           <button
             type="button"
             onClick={onSignIn}
             disabled={busy}
-            className="w-full rounded-full bg-accent px-6 py-3 text-sm font-medium text-ink transition-colors hover:bg-accent-soft disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-3 rounded-full border border-[#747775] bg-white px-6 py-3 text-sm font-medium text-[#1f1f1f] transition-colors hover:bg-[#f2f2f2] disabled:opacity-60"
           >
+            <GoogleIcon className="h-[18px] w-[18px]" />
             {busy ? "Opening Google…" : "Continue with Google"}
           </button>
           {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
