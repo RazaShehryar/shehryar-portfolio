@@ -141,8 +141,9 @@ function section(title: string, body: string) {
 }
 
 function buildEmail(day: string, t: Snapshot, prev: Snapshot) {
-  const engaged = Object.entries(t.dwell).reduce((n, [k, v]) => (k === "s0" ? n : n + v), 0);
-  const dwellTotal = Object.values(t.dwell).reduce((n, v) => n + v, 0);
+  // Bands are cumulative, so the widest one is the count of real reads.
+  const engaged = t.dwell.s10 ?? 0;
+  const dwellTotal = t.views;
 
   const previews = Object.entries(t.events)
     .filter(([k]) => k.startsWith("preview_"))

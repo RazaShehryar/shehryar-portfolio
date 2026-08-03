@@ -165,23 +165,25 @@ export function parseClient(ua: string): {
   return { device, browser, os };
 }
 
-/** Time-on-page buckets, chosen to separate a bounce from a real read. */
-export function dwellBucket(seconds: number): string {
-  if (seconds < 10) return "s0";
-  if (seconds < 30) return "s10";
-  if (seconds < 60) return "s30";
-  if (seconds < 180) return "s60";
-  if (seconds < 600) return "s180";
-  return "s600";
-}
+/**
+ * Time-on-page milestones, in seconds.
+ *
+ * Recorded as they are passed rather than once on unload. Writes issued during
+ * `pagehide` do not reliably complete before the page is torn down — which is
+ * how the first version silently recorded nothing — so each threshold is
+ * banked while the tab is still alive.
+ *
+ * The result is cumulative, like scroll depth: a five-minute visit counts in
+ * every band up to three minutes.
+ */
+export const DWELL_MARKS = [10, 30, 60, 180, 600] as const;
 
 export const DWELL_LABELS: Record<string, string> = {
-  s0: "Under 10s",
-  s10: "10–30s",
-  s30: "30–60s",
-  s60: "1–3 min",
-  s180: "3–10 min",
-  s600: "Over 10 min",
+  s10: "Stayed 10s+",
+  s30: "30s+",
+  s60: "1 min+",
+  s180: "3 min+",
+  s600: "10 min+",
 };
 
 /** Interaction events worth counting, keyed compactly for Firestore. */

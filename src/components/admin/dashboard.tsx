@@ -171,15 +171,9 @@ export function Dashboard() {
   const totalUniques = useMemo(() => series.reduce((n, s) => n + s.uniques, 0), [series]);
   const peak = Math.max(1, ...series.map((s) => s.views));
 
-  // Everything past the 10-second bucket counts as a genuine read.
-  const engaged = useMemo(
-    () => Object.entries(dwell).reduce((n, [k, v]) => (k === "s0" ? n : n + v), 0),
-    [dwell],
-  );
-  const dwellTotal = useMemo(
-    () => Object.values(dwell).reduce((n, v) => n + v, 0),
-    [dwell],
-  );
+  // Bands are cumulative, so the widest one is the count of real reads.
+  const engaged = dwell.s10 ?? 0;
+  const dwellTotal = totalViews;
 
   const previewOpens = useMemo(
     () =>

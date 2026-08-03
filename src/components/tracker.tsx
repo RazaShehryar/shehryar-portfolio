@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { doc, increment, setDoc } from "firebase/firestore";
 import { getDb } from "@/lib/firebase";
-import { dayKey, dwellBucket, hourKey, parseClient, resolveSource } from "@/lib/analytics";
+import { DWELL_MARKS, dayKey, hourKey, parseClient, resolveSource } from "@/lib/analytics";
 
 const LOCAL_DAY_KEY = "srz_last_day";
 const SEEN_KEY = "srz_seen";
@@ -139,36 +139,27 @@ export function Tracker() {
       }
     };
 
-    // Dwell is written once, when the page is being left. `pagehide` and a
-    // hidden `visibilitychange` are the only events that fire reliably on
-    // mobile, where tabs are frozen rather than unloaded.
-    const start = Date.now();
-    let dwellSent = false;
-    const sendDwell = () => {
-      if (dwellSent) return;
-      dwellSent = true;
-      const seconds = Math.round((Date.now() - start) / 1000);
-      void setDoc(
-        doc(db, "engagement", today),
-        { dwell: { [dwellBucket(seconds)]: increment(1) } },
-        { merge: true },
-      ).catch(() => {});
-    };
-
-    const onHidden = () => {
-      if (document.visibilityState === "hidden") sendDwell();
-    };
+    // Each dwell milestone is banked as it is passed, while the tab is still
+    // alive. Writing once on pagehide loses the record — the request does not
+    // finish before teardown — so this trades a little write volume for data
+    // that actually arrives.
+    const dwellTimers = DWELL_MARKS.map((mark) =>
+      window.setTimeout(() => {
+        void setDoc(
+          doc(db, "engagement", today),
+          { dwell: { [`s${mark}`]: increment(1) } },
+          { merge: true },
+        ).catch(() => {});
+      }, mark * 1000),
+    );
 
     window.addEventListener("scroll", onScroll, { passive: true });
-    document.addEventListener("visibilitychange", onHidden);
-    window.addEventListener("pagehide", sendDwell);
 
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
+      for (const t of dwellTimers) window.clearTimeout(t);
       window.removeEventListener("scroll", onScroll);
-      document.removeEventListener("visibilitychange", onHidden);
-      window.removeEventListener("pagehide", sendDwell);
     };
   }, []);
 
