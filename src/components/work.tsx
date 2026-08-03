@@ -19,8 +19,8 @@ export function Work() {
     <section id="work" className="relative mx-auto max-w-7xl px-6 py-28 sm:py-36">
       <SectionHeading
         eyebrow="Work"
-        title="What I actually do"
-        lead="Roles described by the work rather than the logo."
+        title="Where I've worked"
+        lead="No company names here, on purpose. The work is the part that matters anyway."
       />
 
       <div ref={ref} className="relative">

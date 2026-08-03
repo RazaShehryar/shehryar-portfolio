@@ -8,8 +8,8 @@ export function Skills() {
     <section id="skills" className="relative mx-auto max-w-7xl px-6 py-28 sm:py-36">
       <SectionHeading
         eyebrow="Toolkit"
-        title="What I reach for"
-        lead="Deep in the React and Node ecosystem, and increasingly in the tooling around coding agents."
+        title="What I use"
+        lead="Mostly React and Node, with a growing pile of agent tooling on top."
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

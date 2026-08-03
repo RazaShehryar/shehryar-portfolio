@@ -79,7 +79,7 @@ export function Hero() {
             <div className="flex flex-wrap items-center gap-3">
               <Magnetic strength={0.4}>
                 <a
-                  href="#projects"
+                  href="/projects"
                   className="group relative inline-flex overflow-hidden rounded-full bg-accent px-6 py-3 text-sm font-medium text-ink transition-colors hover:bg-accent-soft"
                 >
                   {/* Sheen sweeps across on hover. */}
@@ -92,7 +92,7 @@ export function Hero() {
               </Magnetic>
               <Magnetic strength={0.4}>
                 <a
-                  href="#contact"
+                  href="/contact"
                   className="inline-flex rounded-full border border-line px-6 py-3 text-sm transition-colors hover:border-accent/60 hover:text-accent"
                 >
                   Get in touch
@@ -181,7 +181,7 @@ export function Hero() {
       </div>
 
       <motion.a
-        href="#work"
+        href="/work"
         aria-label="Scroll to work"
         className="pointer-events-auto absolute bottom-[7.5rem] left-1/2 hidden -translate-x-1/2 text-faint transition-colors hover:text-accent lg:block"
         animate={reduced ? undefined : { y: [0, 8, 0] }}

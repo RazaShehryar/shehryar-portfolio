@@ -16,8 +16,8 @@ export function MoreWork() {
     <section id="more-work" className="relative mx-auto max-w-7xl px-6 py-28 sm:py-36">
       <SectionHeading
         eyebrow="Selected work"
-        title="The rest of the shelf"
-        lead="Client and product work going back to 2021. Where a project predates any surviving screenshots, its app icon stands in rather than a mockup."
+        title="Everything else"
+        lead="Client work going back to 2021. Some of these are old enough that no screenshots survived, so you get the app icon instead of a mockup I made up."
       />
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

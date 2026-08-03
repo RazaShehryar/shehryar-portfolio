@@ -8,8 +8,8 @@ export function Projects() {
       <div className="mx-auto max-w-7xl px-6 pt-28 sm:pt-36">
         <SectionHeading
           eyebrow="Projects"
-          title="Products that shipped"
-          lead="Four that are live right now, from a wallet used across Saudi Arabia to a marketplace in Ghana. Scroll through each one — the screens move as you read."
+          title="Things that shipped"
+          lead="Four of these are in use right now. Keep scrolling and the screens move with you."
         />
       </div>
 

@@ -10,8 +10,8 @@ export function Timeline() {
     <section id="timeline" className="relative mx-auto max-w-7xl px-6 py-28 sm:py-36">
       <SectionHeading
         eyebrow="Timeline"
-        title="Seven years of shipping"
-        lead="A run through the wider body of work. Commit counts are mine specifically, read straight out of each repository."
+        title="How it went"
+        lead="Roughly in order. Some of it shipped, some of it quietly died, all of it taught me something."
       />
 
       <div className="relative">

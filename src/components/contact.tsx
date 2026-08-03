@@ -84,8 +84,8 @@ export function Contact() {
         <div>
           <SectionHeading
             eyebrow="Contact"
-            title="Let's build something"
-            lead="Open to product engineering work and to anything involving coding agents or model evaluation. I read everything that comes through."
+            title="Say hello"
+            lead="Happy to talk about product work, or anything involving coding agents. I read everything, and I reply to most of it."
           />
 
           <Reveal delay={0.1}>
