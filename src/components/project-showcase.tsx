@@ -153,7 +153,7 @@ export function ProjectShowcase({ project, index }: { project: Project; index: n
               ))}
               {views !== null && (
                 <span className="text-xs text-faint">
-                  {views.toLocaleString()} views
+                  {views.toLocaleString()} {views === 1 ? "view" : "views"}
                 </span>
               )}
             </div>
