@@ -1,0 +1,43 @@
+rules_version = '2';
+
+// The site talks to Firestore straight from the browser, so these rules are
+// the only thing standing between the database and the open internet.
+// Everything is denied unless it matches one of the two narrow cases below.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Contact form submissions.
+    // Anyone may create one; nobody may read, edit or delete through the
+    // client. Messages are read from the Firebase console.
+    match /contacts/{id} {
+      allow create: if isWellFormedContact();
+      allow read, update, delete: if false;
+    }
+
+    // Per-project view counters.
+    // Public to read. A write may only ever move `count` up by exactly one,
+    // which stops the counter being set to an arbitrary value.
+    match /views/{slug} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['count'])
+                    && request.resource.data.count == 1;
+      allow update: if request.resource.data.keys().hasOnly(['count'])
+                    && request.resource.data.count == resource.data.count + 1;
+      allow delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
+function isWellFormedContact() {
+  let d = request.resource.data;
+  return d.keys().hasOnly(['name', 'email', 'message', 'createdAt'])
+    && d.name is string && d.name.size() > 0 && d.name.size() <= 100
+    && d.email is string && d.email.size() > 3 && d.email.size() <= 200
+    && d.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
+    && d.message is string && d.message.size() > 0 && d.message.size() <= 4000
+    && d.createdAt == request.time;
+}

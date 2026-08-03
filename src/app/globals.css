@@ -1,26 +1,93 @@
 @import "tailwindcss";
 
+@theme {
+  --color-ink: #07070a;
+  --color-ink-soft: #0c0c11;
+  --color-surface: #14141b;
+  --color-line: #23232e;
+  --color-fg: #f2f2f5;
+  --color-muted: #9a9aa8;
+  --color-faint: #6a6a78;
+  --color-accent: #ff7a30;
+  --color-accent-soft: #ffa268;
+  --color-accent-deep: #e0510f;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  /* Keeps the sticky nav from covering an anchored heading. */
+  scroll-padding-top: 6rem;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-ink);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: #0b0b0f;
+}
+
+/* Fine grain stops large flat dark areas from banding on wide gamut displays. */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.text-gradient {
+  background: linear-gradient(
+    100deg,
+    var(--color-fg) 12%,
+    var(--color-accent-soft) 58%,
+    var(--color-accent) 92%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Shared perspective for the scroll-driven device reveals. */
+.stage {
+  perspective: 1800px;
+  perspective-origin: 50% 45%;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+/* Thin top-and-bottom fade so sticky sections dissolve rather than cut. */
+.edge-fade {
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
