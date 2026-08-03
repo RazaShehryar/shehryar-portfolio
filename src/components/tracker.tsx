@@ -9,7 +9,7 @@ const VISITOR_KEY = "srz_visitor";
 const LAST_DAY_KEY = "srz_last_day";
 
 /**
- * Records one visit per page load into a per-day aggregate document.
+ * Records one visit per page load, plus how far down the page the reader gets.
  *
  * Only counters are stored — no IP, no user agent, no path history and no
  * identifier that leaves the visitor's own browser. The visitor id exists
@@ -24,14 +24,15 @@ export function Tracker() {
     // Respect an explicit do-not-track signal.
     if (typeof navigator !== "undefined" && navigator.doNotTrack === "1") return;
 
-    const run = async () => {
+    const today = dayKey(new Date());
+
+    const recordVisit = async () => {
       try {
         const params = new URLSearchParams(window.location.search);
         const source = resolveSource(
           document.referrer || null,
           params.get("utm_source") ?? params.get("ref"),
         );
-        const today = dayKey(new Date());
 
         let visitor = localStorage.getItem(VISITOR_KEY);
         if (!visitor) {
@@ -58,8 +59,34 @@ export function Tracker() {
     };
 
     // Defer past first paint so tracking never competes with rendering.
-    const id = window.setTimeout(run, 1200);
-    return () => window.clearTimeout(id);
+    const timer = window.setTimeout(recordVisit, 1200);
+
+    // Each depth threshold is recorded once per load, so one reader scrolling
+    // up and down cannot inflate it.
+    const reached = new Set<number>();
+    const onScroll = () => {
+      const scrollable =
+        document.documentElement.scrollHeight - window.innerHeight;
+      if (scrollable <= 0) return;
+      const percent = Math.round((window.scrollY / scrollable) * 100);
+
+      for (const mark of [25, 50, 75, 100]) {
+        if (percent >= mark && !reached.has(mark)) {
+          reached.add(mark);
+          setDoc(
+            doc(db, "depthStats", today),
+            { depth: { [`d${mark}`]: increment(1) } },
+            { merge: true },
+          ).catch(() => {});
+        }
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
   return null;

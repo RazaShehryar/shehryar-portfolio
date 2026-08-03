@@ -27,7 +27,9 @@ import { useProjectViews } from "@/lib/use-views";
 export function ProjectShowcase({ project, index }: { project: Project; index: number }) {
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
-  const views = useProjectViews(project.slug);
+  // The same section element drives both the scroll animation and the
+  // visibility check that decides whether this project counts as viewed.
+  const { views, ref: viewRef } = useProjectViews(project.slug);
   const [previewOpen, setPreviewOpen] = useState(false);
 
   const { scrollYProgress } = useScroll({
@@ -63,7 +65,10 @@ export function ProjectShowcase({ project, index }: { project: Project; index: n
 
   return (
     <section
-      ref={ref}
+      ref={(node) => {
+        ref.current = node;
+        viewRef.current = node;
+      }}
       id={`project-${project.slug}`}
       className="relative"
       // The track is taller than the viewport; that extra height is the

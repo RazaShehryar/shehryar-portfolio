@@ -1,34 +1,24 @@
 rules_version = '2';
 
-// The site talks to Firestore straight from the browser, so these rules are
-// the only thing standing between the database and the open internet.
-// Everything is denied unless it matches one of the two narrow cases below.
+// The site and the admin portal both talk to Firestore straight from the
+// browser, so these rules are the only thing standing between the database
+// and the open internet. Everything is denied unless it matches a case below.
 service cloud.firestore {
   match /databases/{database}/documents {
 
     // Contact form submissions.
-    // Anyone may create one; nobody may read, edit or delete through the
-    // client. Messages are read from the Firebase console.
+    // Anyone may create one. Only the admin account may read them back, and
+    // nobody may edit or delete through the client.
     match /contacts/{id} {
       allow create: if isWellFormedContact();
-      allow read, update, delete: if false;
-    }
-
-    // Per-project view counters.
-    // Public to read. A write may only ever move `count` up by exactly one,
-    // which stops the counter being set to an arbitrary value.
-    match /views/{slug} {
-      allow read: if true;
-      allow create: if request.resource.data.keys().hasOnly(['count'])
-                    && request.resource.data.count == 1;
-      allow update: if request.resource.data.keys().hasOnly(['count'])
-                    && request.resource.data.count == resource.data.count + 1;
-      allow delete: if false;
+      allow read: if isAdmin();
+      allow update, delete: if false;
     }
 
     // Per-day traffic aggregates: view count, unique count and a per-source
     // tally. Counters only — no IP, no user agent, no visitor identifier — so
-    // these are safe to expose for the nightly report to read back.
+    // these stay world-readable for the nightly report, which reads them over
+    // the REST API without a service account.
     match /stats/{day} {
       allow read: if true;
       allow create: if isStatsShape() && request.resource.data.views == 1;
@@ -41,17 +31,48 @@ service cloud.firestore {
     // counter can each have a single-increment rule of their own.
     match /contactStats/{day} {
       allow read: if true;
-      allow create: if request.resource.data.keys().hasOnly(['count'])
-                    && request.resource.data.count == 1;
-      allow update: if request.resource.data.keys().hasOnly(['count'])
+      allow create: if onlyKey('count') && request.resource.data.count == 1;
+      allow update: if onlyKey('count')
                     && request.resource.data.count == resource.data.count + 1;
       allow delete: if false;
+    }
+
+    // Lifetime per-project view counters, shown on the project cards.
+    match /views/{slug} {
+      allow read: if true;
+      allow create: if onlyKey('count') && request.resource.data.count == 1;
+      allow update: if onlyKey('count')
+                    && request.resource.data.count == resource.data.count + 1;
+      allow delete: if false;
+    }
+
+    // Per-day, per-project engagement and scroll depth. Nested counter maps
+    // can't be validated field by field in rules, so these are shape-checked
+    // and left append-only.
+    match /projectStats/{day} {
+      allow read: if true;
+      allow write: if onlyKey('projects') && request.resource.data.projects is map;
+    }
+
+    match /depthStats/{day} {
+      allow read: if true;
+      allow write: if onlyKey('depth') && request.resource.data.depth is map;
     }
 
     match /{document=**} {
       allow read, write: if false;
     }
   }
+}
+
+function isAdmin() {
+  return request.auth != null
+    && request.auth.token.email_verified == true
+    && request.auth.token.email.lower() == 'shehryarraza320@gmail.com';
+}
+
+function onlyKey(k) {
+  return request.resource.data.keys().hasOnly([k]);
 }
 
 function isStatsShape() {
