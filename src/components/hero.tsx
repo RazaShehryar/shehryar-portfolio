@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
 import { ArrowDown, FileText, Mail } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/icons";
+import { trackEvent } from "@/lib/track-event";
 import { site, stats } from "@/lib/site";
 import { Reveal } from "@/components/motion/reveal";
 import { RevealChars } from "@/components/motion/text";
@@ -102,6 +103,7 @@ export function Hero() {
                   href={site.cv}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => trackEvent("cv_download")}
                   className="inline-flex items-center gap-2 rounded-full border border-line px-6 py-3 text-sm transition-colors hover:border-accent/60 hover:text-accent"
                 >
                   <FileText className="h-3.5 w-3.5" />

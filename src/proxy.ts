@@ -14,6 +14,27 @@ const ADMIN_HOST = "admin.shehryar-raza.dev";
  * This is routing only — it is not the access control. Authentication happens
  * in the page, and the real boundary is the email check in `firestore.rules`.
  */
+/**
+ * Hands the visitor's country to the client.
+ *
+ * Vercel resolves this at the edge and exposes it as a request header, which
+ * browser code cannot read. Passing it down as a short-lived, non-HttpOnly
+ * cookie lets the tracker record a country without geolocation prompts, IP
+ * storage or a third-party lookup service.
+ */
+function withGeo(response: NextResponse, request: NextRequest) {
+  const country = request.headers.get("x-vercel-ip-country");
+  if (country && /^[A-Z]{2}$/.test(country)) {
+    response.cookies.set("geo", country, {
+      path: "/",
+      maxAge: 60 * 60 * 12,
+      sameSite: "lax",
+      httpOnly: false,
+    });
+  }
+  return response;
+}
+
 export function proxy(request: NextRequest) {
   const host = request.headers.get("host")?.toLowerCase() ?? "";
   const { pathname } = request.nextUrl;
@@ -32,7 +53,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(`https://${ADMIN_HOST}/`));
   }
 
-  return NextResponse.next();
+  return withGeo(NextResponse.next(), request);
 }
 
 export const config = {

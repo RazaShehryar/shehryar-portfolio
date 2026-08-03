@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { addDoc, collection, doc, increment, serverTimestamp, setDoc } from "firebase/firestore";
 import { dayKey } from "@/lib/analytics";
+import { trackEvent } from "@/lib/track-event";
 import { Check, Loader2, Mail } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/icons";
 import { getDb } from "@/lib/firebase";
@@ -16,6 +17,7 @@ const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 export function Contact() {
   const [state, setState] = useState<State>("idle");
+  const startedRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -58,6 +60,7 @@ export function Contact() {
         /* counter only — the message itself is already saved */
       }
 
+      trackEvent("contact_sent");
       setState("sent");
       form.reset();
     } catch {
@@ -97,6 +100,13 @@ export function Contact() {
         <Reveal delay={0.16}>
           <form
             onSubmit={onSubmit}
+            onFocusCapture={() => {
+              // Fires once: the funnel needs starts, not keystrokes.
+              if (!startedRef.current) {
+                startedRef.current = true;
+                trackEvent("contact_start");
+              }
+            }}
             className="rounded-2xl border border-line bg-white/[0.02] p-6 sm:p-8"
           >
             <div className="space-y-5">

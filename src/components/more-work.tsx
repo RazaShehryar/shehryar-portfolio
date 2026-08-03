@@ -8,6 +8,7 @@ import { Reveal } from "@/components/motion/reveal";
 import { Spotlight } from "@/components/motion/spotlight";
 import { PhoneFrame } from "@/components/frames";
 import { SitePreview } from "@/components/site-preview";
+import { outboundClicked, previewOpened } from "@/lib/track-event";
 import { SectionHeading } from "@/components/section-heading";
 
 export function MoreWork() {
@@ -115,7 +116,10 @@ function Card({ card }: { card: WorkCard }) {
               {card.preview && (
                 <button
                   type="button"
-                  onClick={() => setPreviewOpen(true)}
+                  onClick={() => {
+                    previewOpened(card.slug);
+                    setPreviewOpen(true);
+                  }}
                   className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-ink transition-transform hover:scale-[1.04]"
                   style={{ background: card.accent }}
                 >
@@ -129,6 +133,7 @@ function Card({ card }: { card: WorkCard }) {
                   href={l.href}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => outboundClicked(`${card.slug}_${l.label}`)}
                   className="group/link inline-flex items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs text-muted transition-colors hover:border-accent/60 hover:text-accent"
                 >
                   {l.label}

@@ -15,6 +15,7 @@ import type { Project } from "@/lib/projects";
 import { BrowserFrame, PhoneFrame } from "@/components/frames";
 import { SitePreview } from "@/components/site-preview";
 import { useProjectViews } from "@/lib/use-views";
+import { outboundClicked, previewOpened } from "@/lib/track-event";
 
 /**
  * One project, revealed across a tall scroll track.
@@ -157,7 +158,10 @@ export function ProjectShowcase({ project, index }: { project: Project; index: n
               {project.preview ? (
                 <button
                   type="button"
-                  onClick={() => setPreviewOpen(true)}
+                  onClick={() => {
+                    previewOpened(project.slug);
+                    setPreviewOpen(true);
+                  }}
                   className="group inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-ink transition-transform hover:scale-[1.03]"
                   style={{ background: project.accent }}
                 >
@@ -187,6 +191,7 @@ export function ProjectShowcase({ project, index }: { project: Project; index: n
                   href={l.href}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => outboundClicked(`${project.slug}_${l.label}`)}
                   className="group inline-flex items-center gap-1.5 rounded-full border border-line bg-white/[0.03] px-4 py-2 text-sm transition-colors hover:border-accent/60 hover:text-accent"
                 >
                   {l.label}

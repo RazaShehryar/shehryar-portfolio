@@ -116,3 +116,89 @@ export function dayKey(date: Date, timeZone = "Asia/Karachi"): string {
     day: "2-digit",
   }).format(date);
 }
+
+/** Local hour in the report's timezone, 0–23, as a two-digit bucket key. */
+export function hourKey(date: Date, timeZone = "Asia/Karachi"): string {
+  const h = new Intl.DateTimeFormat("en-GB", {
+    timeZone,
+    hour: "2-digit",
+    hour12: false,
+  }).format(date);
+  return h.padStart(2, "0");
+}
+
+export type DeviceKind = "desktop" | "mobile" | "tablet";
+
+/**
+ * Coarse device, browser and OS buckets from the user agent.
+ *
+ * Deliberately hand-rolled and low-resolution: the goal is "are these people
+ * on phones?", not device identification. The raw user agent is never stored.
+ * Order matters — Edge and Opera both claim Chrome, and Chrome claims Safari.
+ */
+export function parseClient(ua: string): {
+  device: DeviceKind;
+  browser: string;
+  os: string;
+} {
+  const s = ua.toLowerCase();
+
+  const tablet = /ipad|tablet|playbook|silk|(android(?!.*mobile))/.test(s);
+  const mobile = /iphone|ipod|android.*mobile|windows phone|blackberry|opera mini/.test(s);
+  const device: DeviceKind = tablet ? "tablet" : mobile ? "mobile" : "desktop";
+
+  let browser = "Other";
+  if (/edg\//.test(s)) browser = "Edge";
+  else if (/opr\/|opera/.test(s)) browser = "Opera";
+  else if (/samsungbrowser/.test(s)) browser = "Samsung";
+  else if (/firefox|fxios/.test(s)) browser = "Firefox";
+  else if (/chrome|crios/.test(s)) browser = "Chrome";
+  else if (/safari/.test(s)) browser = "Safari";
+
+  let os = "Other";
+  if (/windows/.test(s)) os = "Windows";
+  else if (/iphone|ipad|ipod/.test(s)) os = "iOS";
+  else if (/mac os x/.test(s)) os = "macOS";
+  else if (/android/.test(s)) os = "Android";
+  else if (/linux/.test(s)) os = "Linux";
+
+  return { device, browser, os };
+}
+
+/** Time-on-page buckets, chosen to separate a bounce from a real read. */
+export function dwellBucket(seconds: number): string {
+  if (seconds < 10) return "s0";
+  if (seconds < 30) return "s10";
+  if (seconds < 60) return "s30";
+  if (seconds < 180) return "s60";
+  if (seconds < 600) return "s180";
+  return "s600";
+}
+
+export const DWELL_LABELS: Record<string, string> = {
+  s0: "Under 10s",
+  s10: "10–30s",
+  s30: "30–60s",
+  s60: "1–3 min",
+  s180: "3–10 min",
+  s600: "Over 10 min",
+};
+
+/** Interaction events worth counting, keyed compactly for Firestore. */
+export const EVENT_LABELS: Record<string, string> = {
+  cv_download: "CV opened",
+  contact_start: "Started the contact form",
+  contact_sent: "Sent a message",
+  nav_click: "Used the nav",
+};
+
+/** Two-letter country code to a readable name, for the codes we actually see. */
+export function countryName(code: string): string {
+  try {
+    return (
+      new Intl.DisplayNames(["en"], { type: "region" }).of(code.toUpperCase()) ?? code
+    );
+  } catch {
+    return code;
+  }
+}
