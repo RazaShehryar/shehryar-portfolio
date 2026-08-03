@@ -17,8 +17,8 @@ export const site = {
 export const stats = [
   { value: "7+", label: "Years shipping" },
   { value: "40%", label: "Faster delivery cycles" },
-  { value: "2,000+", label: "Commits on Makola" },
-  { value: "3", label: "Live on the app stores" },
+  { value: "30%", label: "Faster API responses" },
+  { value: "4", label: "Apps live on the stores" },
 ] as const;
 
 /**
@@ -48,7 +48,7 @@ export const experience = [
     summary:
       "Designing and running evaluations for coding agents and agentic applications. Started in RLHF data for model training; now focused on measuring whether agents actually do the job.",
     points: [
-      "Built and maintained an internal eval tooling platform, authoring 608 of its 883 commits.",
+      "Built and maintained an internal eval tooling platform end to end.",
       "Write adversarial and multi-turn evals that probe agent failure modes rather than happy paths.",
       "Review agent-authored pull requests against real production repositories and grade correctness, not plausibility.",
       "Develop rubrics and scoring harnesses used to compare model versions across releases.",
@@ -62,7 +62,7 @@ export const experience = [
     summary:
       "Sole lead engineer on a marketplace serving Ghanaian businesses across iOS, Android, web and admin. Took it from prototype to a live, transacting platform.",
     points: [
-      "Authored 1,002 of 1,034 commits in the production monorepo covering four applications.",
+      "Sole engineer on the production monorepo covering all four applications.",
       "Shipped the React Native app to both stores and kept it current through version 4.0.4.",
       "Built the Node backend handling search, payments, notifications and onboarding on Google App Engine.",
       "Added AI-powered matchmaking using OpenAI embeddings over a Postgres vector store.",
@@ -80,7 +80,7 @@ export const experience = [
       "Developed reusable React component libraries that cut the feature development cycle by roughly 40%.",
       "Integrated Stripe payment processing with thorough validation and error handling.",
       "Built scalable notification infrastructure on Twilio and GCP Tasks with high delivery reliability.",
-      "Contributed architecture improvements for long-term maintainability, across 2,143 commits.",
+      "Contributed architecture improvements for long-term maintainability.",
     ],
     stack: ["React", "TypeScript", "Stripe", "Twilio", "GCP Tasks", "Node"],
   },

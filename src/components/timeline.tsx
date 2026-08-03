@@ -69,11 +69,6 @@ function Row({ entry, index }: { entry: TimelineEntry; index: number }) {
           <p className="mt-1 text-sm leading-relaxed text-muted">{entry.note}</p>
         </div>
 
-        {entry.commits != null && (
-          <span className="shrink-0 font-mono text-xs text-faint">
-            {entry.commits.toLocaleString()} commits
-          </span>
-        )}
       </div>
 
       {index === 0 && <span className="sr-only">Most recent</span>}

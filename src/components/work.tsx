@@ -20,7 +20,7 @@ export function Work() {
       <SectionHeading
         eyebrow="Work"
         title="What I actually do"
-        lead="Roles described by the work rather than the logo. Every number below is counted from real commit history."
+        lead="Roles described by the work rather than the logo."
       />
 
       <div ref={ref} className="relative">

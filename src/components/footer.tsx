@@ -9,9 +9,7 @@ export function Footer() {
         <p>
           © {year} {site.name}
         </p>
-        <p className="text-center sm:text-right">
-          Built with Next.js and deployed on Vercel.
-        </p>
+        <p className="text-center sm:text-right">{site.role}</p>
       </div>
     </footer>
   );

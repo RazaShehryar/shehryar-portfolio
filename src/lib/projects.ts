@@ -90,7 +90,7 @@ export const featured: Project[] = [
       "Nx",
     ],
     highlights: [
-      "1,002 of 1,034 commits in the production monorepo are mine.",
+      "Sole engineer on the production monorepo spanning four applications.",
       "Live on iOS at v4.0.4 and on Google Play, shipping updates through 2026.",
       "AI matchmaking built on OpenAI embeddings over a Postgres vector store.",
       "Consolidated six repositories into one Nx monorepo covering web, mobile, admin and backend.",
@@ -125,7 +125,7 @@ export const featured: Project[] = [
     highlights: [
       "Live on both stores at v4.3.0, last updated in 2026.",
       "Rated 4.2 across 31 App Store reviews.",
-      "Shipped inside a 1,086-commit codebase alongside a distributed team.",
+      "Built alongside a distributed team over several years of releases.",
     ],
     shots: [
       { src: "/projects/votly-0.webp", alt: "Votly feed", frame: "phone" },
@@ -209,7 +209,7 @@ export const moreWork: WorkCard[] = [
     name: "Fluyo",
     year: "2020 — 2021",
     role: "React Native developer",
-    note: "A language-learning app built as a game — biomes to explore, creatures to find and a dolphin companion. I contributed 150 commits to the mobile client.",
+    note: "A language-learning app built as a game — biomes to explore, creatures to find and a dolphin companion. I worked on the mobile client.",
     stack: ["React Native", "Animations", "Game UI"],
     image: "/projects/fluyo-web.webp",
     icon: "/projects/fluyo-icon.webp",
@@ -226,7 +226,7 @@ export const moreWork: WorkCard[] = [
     name: "Central Pro Services",
     year: "2021 — 2023",
     role: "Frontend engineer",
-    note: "Operations dashboard for an apartment turns and renovation business, covering scheduling and job management. 112 of its commits are mine.",
+    note: "Operations dashboard for an apartment turns and renovation business, covering scheduling and job management.",
     stack: ["React", "TypeScript", "Node"],
     image: "/projects/centralproserv-web.webp",
     accent: "#4F9BD9",
@@ -239,7 +239,7 @@ export const moreWork: WorkCard[] = [
     name: "Workout + Apple Music",
     year: "2024",
     role: "React Native & Swift",
-    note: "A workout app paired with Apple Music. I wrote the Swift native module behind it — 28 commits adding catalog playlist support, a playlist-song fetch method, queue fixes and playback stop control.",
+    note: "A workout app paired with Apple Music. I wrote the Swift native module behind it, adding catalog playlist support, playlist-song fetching, queue fixes and playback stop control.",
     stack: ["Swift", "MusicKit", "React Native", "Native modules"],
     // The app icon is near-white and reads as a blank blob on a dark card,
     // so this one falls through to the monogram.
@@ -254,7 +254,7 @@ export const moreWork: WorkCard[] = [
     name: "Duals",
     year: "2020 — 2023",
     role: "Lead engineer",
-    note: "Sports social product spanning the mobile client and its server. At 1,022 commits it is the second-largest codebase I have worked in.",
+    note: "Sports social product spanning the mobile client and its server, and one of the largest codebases I have worked in.",
     stack: ["React Native", "Node", "Firebase"],
     accent: "#7C5CE0",
   },
@@ -263,7 +263,7 @@ export const moreWork: WorkCard[] = [
     name: "Bite",
     year: "2021 — 2022",
     role: "Mobile engineer",
-    note: "Food and restaurant discovery app with social features. I wrote 314 of its 681 commits.",
+    note: "Food and restaurant discovery app with social features, built with a small product team.",
     stack: ["React Native", "TypeScript", "Firebase"],
     icon: "/projects/bite-icon.webp",
     accent: "#E8664A",
@@ -273,7 +273,7 @@ export const moreWork: WorkCard[] = [
     name: "TokSave",
     year: "2020 — 2022",
     role: "Sole engineer",
-    note: "Short-form video profile saver, built and maintained on my own across 80 commits. No screenshots survive in the repository.",
+    note: "Short-form video profile saver, built and maintained on my own.",
     stack: ["React Native", "JavaScript"],
     accent: "#25C4D6",
     status: "archived",
@@ -283,7 +283,7 @@ export const moreWork: WorkCard[] = [
     name: "Legacy Memoirs",
     year: "2022 — 2023",
     role: "Lead mobile engineer",
-    note: "An app for recording and preserving family life stories. I wrote 320 of its 327 commits, effectively building it end to end.",
+    note: "An app for recording and preserving family life stories, which I built end to end.",
     stack: ["React Native", "Expo", "Firebase"],
     image: "/projects/legacy-2.webp",
     imageShape: "portrait",
@@ -295,7 +295,7 @@ export const moreWork: WorkCard[] = [
     name: "SMAPLR",
     year: "2022 — 2025",
     role: "Frontend engineer, React",
-    note: "A multi-tenant planning platform. I built the sub-domain routing that gave every client its own database, workspace and interface theme from one codebase. 388 of its 426 commits are mine.",
+    note: "A multi-tenant planning platform. I built the sub-domain routing that gave every client its own database, workspace and interface theme from a single codebase.",
     stack: ["React", "TypeScript", "Multi-tenancy", "Sub-domain routing"],
     accent: "#4C8DFF",
     status: "archived",
@@ -315,7 +315,7 @@ export const moreWork: WorkCard[] = [
     name: "Seven Invites",
     year: "2021 — 2022",
     role: "Senior software engineer",
-    note: "Consumer social invitations platform. I contributed 2,143 commits, built the reusable component library and the Stripe and Twilio integrations behind it.",
+    note: "Consumer social invitations platform. I built the reusable component library and the Stripe and Twilio integrations behind it.",
     stack: ["React", "TypeScript", "Stripe", "Twilio", "GCP Tasks"],
     accent: "#E0518F",
     links: [{ label: "Instagram", href: "https://www.instagram.com/seveninvites/" }],
@@ -336,7 +336,7 @@ export const moreWork: WorkCard[] = [
     name: "BensBoat English",
     year: "2021 — 2022",
     role: "Sole engineer",
-    note: "English-learning app built for Thai schools. Every one of its 129 commits is mine.",
+    note: "English-learning app built for Thai schools, from first commit to release.",
     stack: ["React Native", "Expo", "Firebase Realtime DB"],
     icon: "/projects/bensboat-icon.webp",
     accent: "#5FBF7F",
@@ -360,7 +360,6 @@ export type TimelineEntry = {
   name: string;
   kind: string;
   note: string;
-  commits?: number;
   status?: "live" | "archived";
 };
 
@@ -374,7 +373,6 @@ export const timeline: TimelineEntry[] = [
     name: "Agent eval tooling",
     kind: "Frontier AI lab",
     note: "Internal platform for grading coding agents on real repositories.",
-    commits: 608,
     status: "live",
   },
   {
@@ -382,7 +380,6 @@ export const timeline: TimelineEntry[] = [
     name: "MakolaHub monorepo",
     kind: "Freelance",
     note: "Six repositories consolidated into one Nx workspace spanning four apps.",
-    commits: 1002,
     status: "live",
   },
   {
@@ -390,35 +387,30 @@ export const timeline: TimelineEntry[] = [
     name: "Marketplace admin & driver apps",
     kind: "Freelance",
     note: "Operations dashboard and a companion delivery-driver application.",
-    commits: 89,
   },
   {
     year: "2024",
     name: "Fitness tracking web app",
     kind: "Client",
     note: "Workout logging and progress tracking on the web.",
-    commits: 85,
   },
   {
     year: "2023",
     name: "Bath refinishing operations panel",
     kind: "Client",
     note: "Scheduling and job management for a refinishing business.",
-    commits: 112,
   },
   {
     year: "2022",
     name: "Social invitations platform",
     kind: "Product team",
-    note: "2,143 commits over the full lifecycle of a consumer social app.",
-    commits: 2143,
+    note: "Worked across the full lifecycle of a consumer social app.",
   },
   {
     year: "2022",
     name: "Enterprise planning dashboard",
     kind: "Client",
-    note: "Forecasting and planning interface; 388 of 426 commits mine.",
-    commits: 388,
+    note: "Forecasting and planning interface, built almost entirely by me.",
   },
   {
     year: "2021",
