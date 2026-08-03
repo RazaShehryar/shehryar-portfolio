@@ -6,7 +6,10 @@ import { motion, useScroll, useTransform, useReducedMotion } from "motion/react"
 import { ArrowDown, Mail } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/icons";
 import { site, stats } from "@/lib/site";
-import { RevealWords, Reveal } from "@/components/motion/reveal";
+import { Reveal } from "@/components/motion/reveal";
+import { RevealChars } from "@/components/motion/text";
+import { Magnetic } from "@/components/motion/magnetic";
+import { CountUp } from "@/components/motion/count-up";
 
 export function Hero() {
   const ref = useRef<HTMLElement>(null);
@@ -54,10 +57,10 @@ export function Hero() {
             </span>
           </Reveal>
 
-          <h1 className="mb-6 text-[clamp(2.6rem,7.5vw,5.2rem)] font-semibold leading-[0.98] tracking-[-0.03em]">
-            <RevealWords text="Shehryar Raza" />
+          <h1 className="preserve-3d mb-6 [perspective:800px] text-[clamp(2.6rem,7.5vw,5.2rem)] font-semibold leading-[0.98] tracking-[-0.03em]">
+            <RevealChars text="Shehryar Raza" delay={0.15} />
             <span className="mt-2 block text-[clamp(1.4rem,3.2vw,2.4rem)] font-normal tracking-tight text-muted">
-              <RevealWords text={site.role} delay={0.18} />
+              <RevealChars text={site.role} delay={0.5} stagger={0.018} />
             </span>
           </h1>
 
@@ -73,18 +76,27 @@ export function Hero() {
 
           <Reveal delay={0.48}>
             <div className="flex flex-wrap items-center gap-3">
-              <a
-                href="#projects"
-                className="rounded-full bg-accent px-6 py-3 text-sm font-medium text-ink transition-transform hover:scale-[1.03] hover:bg-accent-soft"
-              >
-                See the work
-              </a>
-              <a
-                href="#contact"
-                className="rounded-full border border-line px-6 py-3 text-sm transition-colors hover:border-accent/60 hover:text-accent"
-              >
-                Get in touch
-              </a>
+              <Magnetic strength={0.4}>
+                <a
+                  href="#projects"
+                  className="group relative inline-flex overflow-hidden rounded-full bg-accent px-6 py-3 text-sm font-medium text-ink transition-colors hover:bg-accent-soft"
+                >
+                  {/* Sheen sweeps across on hover. */}
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/45 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+                  />
+                  <span className="relative">See the work</span>
+                </a>
+              </Magnetic>
+              <Magnetic strength={0.4}>
+                <a
+                  href="#contact"
+                  className="inline-flex rounded-full border border-line px-6 py-3 text-sm transition-colors hover:border-accent/60 hover:text-accent"
+                >
+                  Get in touch
+                </a>
+              </Magnetic>
               <div className="ml-1 flex items-center gap-1">
                 <IconLink href={site.github} label="GitHub">
                   <GithubIcon className="h-4 w-4" />
@@ -111,7 +123,19 @@ export function Hero() {
                 aria-hidden
                 className="absolute -inset-5 rounded-full bg-gradient-to-tr from-accent/25 via-transparent to-indigo-500/20 blur-2xl"
               />
-              <div className="relative aspect-square overflow-hidden rounded-full border border-white/10">
+              {/* A conic sweep rotating just behind the frame, so the rim
+                  catches light as though something is moving off-camera. */}
+              <motion.div
+                aria-hidden
+                className="absolute -inset-[3px] rounded-full opacity-70"
+                style={{
+                  background:
+                    "conic-gradient(from 0deg, transparent 0deg, var(--color-accent) 55deg, transparent 130deg, transparent 240deg, rgba(120,120,255,0.7) 300deg, transparent 360deg)",
+                }}
+                animate={reduced ? undefined : { rotate: 360 }}
+                transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
+              />
+              <div className="relative aspect-square overflow-hidden rounded-full border border-white/10 bg-ink">
                 <Image
                   src="/profile.webp"
                   alt={`${site.name}, ${site.role}`}
@@ -131,10 +155,11 @@ export function Hero() {
         <div className="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-line/60 px-6 sm:grid-cols-4">
           {stats.map((s, i) => (
             <Reveal key={s.label} delay={0.1 * i}>
-              <div className="px-2 py-5 sm:px-5">
-                <div className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                  {s.value}
-                </div>
+              <div className="group px-2 py-5 transition-colors sm:px-5">
+                <CountUp
+                  value={s.value}
+                  className="block text-2xl font-semibold tracking-tight transition-colors group-hover:text-accent sm:text-3xl"
+                />
                 <div className="mt-0.5 text-xs text-faint">{s.label}</div>
               </div>
             </Reveal>

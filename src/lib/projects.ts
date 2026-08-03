@@ -16,6 +16,12 @@ export type Project = {
   accent: string;
   status: "live" | "archived";
   icon?: string;
+  /**
+   * Site to embed in the in-page preview. Only set this for hosts that permit
+   * framing — anything sending `X-Frame-Options` or a CSP `frame-ancestors`
+   * directive renders as a blank panel.
+   */
+  preview?: string;
   links: { label: string; href: string }[];
   stack: string[];
   highlights: string[];
@@ -35,6 +41,7 @@ export const featured: Project[] = [
     accent: "#2C7BE5",
     status: "live",
     icon: "/projects/makolahub-icon.webp",
+    preview: "https://makolahub.com",
     links: [
       { label: "makolahub.com", href: "https://makolahub.com" },
       { label: "App Store", href: "https://apps.apple.com/us/app/makolahub/id6745556298" },
@@ -112,6 +119,7 @@ export const featured: Project[] = [
     role: "Full-stack engineer",
     accent: "#F2A93B",
     status: "live",
+    preview: "https://securehire.com",
     links: [{ label: "securehire.com", href: "https://securehire.com" }],
     stack: ["React Native", "Node", "Express", "MongoDB"],
     highlights: [

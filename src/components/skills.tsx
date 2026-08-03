@@ -1,5 +1,6 @@
 import { skillGroups } from "@/lib/site";
 import { Reveal } from "@/components/motion/reveal";
+import { Spotlight } from "@/components/motion/spotlight";
 import { SectionHeading } from "@/components/section-heading";
 
 export function Skills() {
@@ -14,18 +15,23 @@ export function Skills() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {skillGroups.map((group, i) => (
           <Reveal key={group.title} delay={i * 0.07}>
-            <div className="group h-full rounded-2xl border border-line bg-white/[0.02] p-6 transition-colors hover:border-accent/30 hover:bg-white/[0.04]">
-              <h3 className="mb-4 text-sm font-medium uppercase tracking-[0.14em] text-accent">
-                {group.title}
-              </h3>
-              <ul className="space-y-2">
-                {group.items.map((item) => (
-                  <li key={item} className="text-sm text-muted">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <Spotlight className="h-full rounded-2xl border border-line bg-white/[0.02]">
+              <div className="h-full p-6">
+                <h3 className="mb-4 text-sm font-medium uppercase tracking-[0.14em] text-accent">
+                  {group.title}
+                </h3>
+                <ul className="space-y-2">
+                  {group.items.map((item) => (
+                    <li
+                      key={item}
+                      className="text-sm text-muted transition-colors hover:text-fg"
+                    >
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Spotlight>
           </Reveal>
         ))}
       </div>

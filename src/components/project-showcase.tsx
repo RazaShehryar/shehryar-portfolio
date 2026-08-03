@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import {
   motion,
@@ -10,9 +10,10 @@ import {
   useReducedMotion,
   type MotionValue,
 } from "motion/react";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, MousePointerClick } from "lucide-react";
 import type { Project } from "@/lib/projects";
 import { BrowserFrame, PhoneFrame } from "@/components/frames";
+import { SitePreview } from "@/components/site-preview";
 import { useProjectViews } from "@/lib/use-views";
 
 /**
@@ -27,6 +28,7 @@ export function ProjectShowcase({ project, index }: { project: Project; index: n
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
   const views = useProjectViews(project.slug);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -42,10 +44,15 @@ export function ProjectShowcase({ project, index }: { project: Project; index: n
   });
 
   const rotateX = useTransform(p, [0, 0.32, 0.7, 1], [20, 0, 0, -10]);
+  // A touch of yaw as well as pitch, so the panel turns to face you rather
+  // than simply tipping up.
+  const rotateY = useTransform(p, [0, 0.32, 0.7, 1], [index % 2 === 0 ? -12 : 12, 0, 0, index % 2 === 0 ? 8 : -8]);
   const scale = useTransform(p, [0, 0.32, 0.7, 1], [0.84, 1, 1, 0.92]);
   const y = useTransform(p, [0, 0.32, 0.7, 1], [90, 0, 0, -70]);
   const artOpacity = useTransform(p, [0, 0.14, 0.86, 1], [0, 1, 1, 0]);
   const glow = useTransform(p, [0, 0.35, 0.7, 1], [0, 0.55, 0.55, 0]);
+  // Copy drifts against the art at a slower rate for depth separation.
+  const copyY = useTransform(p, [0, 1], [60, -60]);
 
   const browserShots = project.shots.filter((s) => s.frame === "browser");
   const phoneShots = project.shots.filter((s) => s.frame === "phone");
@@ -82,7 +89,10 @@ export function ProjectShowcase({ project, index }: { project: Project; index: n
 
         <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 px-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-16">
           {/* ── Copy ───────────────────────────────────────────────── */}
-          <div className="order-2 lg:order-1">
+          <motion.div
+            className="order-2 lg:order-1"
+            style={still ? undefined : { y: copyY }}
+          >
             <div className="mb-5 flex items-center gap-3">
               <span className="font-mono text-xs text-faint">
                 {String(index + 1).padStart(2, "0")}
@@ -139,6 +149,17 @@ export function ProjectShowcase({ project, index }: { project: Project; index: n
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
+              {project.preview && (
+                <button
+                  type="button"
+                  onClick={() => setPreviewOpen(true)}
+                  className="group inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-ink transition-transform hover:scale-[1.03]"
+                  style={{ background: project.accent }}
+                >
+                  <MousePointerClick className="h-3.5 w-3.5" />
+                  Explore it here
+                </button>
+              )}
               {project.links.map((l) => (
                 <a
                   key={l.href}
@@ -157,16 +178,41 @@ export function ProjectShowcase({ project, index }: { project: Project; index: n
                 </span>
               )}
             </div>
-          </div>
+          </motion.div>
 
           {/* ── Device art ─────────────────────────────────────────── */}
-          <div className="stage order-1 lg:order-2">
+          <div
+            className={`stage order-1 lg:order-2 ${
+              project.preview ? "group/art cursor-pointer" : ""
+            }`}
+            onClick={project.preview ? () => setPreviewOpen(true) : undefined}
+            role={project.preview ? "button" : undefined}
+            tabIndex={project.preview ? 0 : undefined}
+            aria-label={project.preview ? `Open a live preview of ${project.name}` : undefined}
+            onKeyDown={
+              project.preview
+                ? (e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setPreviewOpen(true);
+                    }
+                  }
+                : undefined
+            }
+          >
             <motion.div
-              className="preserve-3d"
+              className="preserve-3d relative"
               style={
                 still
                   ? undefined
-                  : { rotateX, scale, y, opacity: artOpacity, transformOrigin: "50% 100%" }
+                  : {
+                      rotateX,
+                      rotateY,
+                      scale,
+                      y,
+                      opacity: artOpacity,
+                      transformOrigin: "50% 100%",
+                    }
               }
             >
               {layout === "web" ? (
@@ -179,10 +225,28 @@ export function ProjectShowcase({ project, index }: { project: Project; index: n
               ) : (
                 <PhoneFan project={project} progress={p} still={still} />
               )}
+
+              {project.preview && (
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover/art:opacity-100">
+                  <span className="flex items-center gap-2 rounded-full bg-ink/85 px-4 py-2 text-sm backdrop-blur-sm">
+                    <MousePointerClick className="h-3.5 w-3.5 text-accent" />
+                    Click to explore
+                  </span>
+                </div>
+              )}
             </motion.div>
           </div>
         </div>
       </div>
+
+      {project.preview && (
+        <SitePreview
+          url={project.preview}
+          name={project.name}
+          open={previewOpen}
+          onClose={() => setPreviewOpen(false)}
+        />
+      )}
     </section>
   );
 }
@@ -206,6 +270,11 @@ function WebComposition({
   const phoneY = useTransform(progress, [0.2, 0.85], [70, -50]);
   const phoneRotate = useTransform(progress, [0.2, 0.85], [-8, 4]);
 
+  // Screenshots pan inside their frames, as if the page were being scrolled.
+  // Kept inside the overscan the 1.08 scale provides, so no edge ever shows.
+  const pageShift = useTransform(progress, [0.15, 0.9], ["-2.6%", "2.6%"]);
+  const phoneShift = useTransform(progress, [0.15, 0.9], ["-1.8%", "1.8%"]);
+
   return (
     <div className="relative">
       <div className="relative">
@@ -218,7 +287,12 @@ function WebComposition({
             still={still}
             absolute={i > 0}
           >
-            <BrowserFrame src={shot.src} alt={shot.alt} priority={eager && i === 0} />
+            <BrowserFrame
+              src={shot.src}
+              alt={shot.alt}
+              priority={eager && i === 0}
+              shift={still ? undefined : pageShift}
+            />
           </CrossfadeLayer>
         ))}
       </div>
@@ -228,7 +302,11 @@ function WebComposition({
           className="absolute -bottom-14 -right-2 w-[26%] sm:-right-6 sm:w-[24%]"
           style={still ? undefined : { y: phoneY, rotate: phoneRotate }}
         >
-          <PhoneFrame src={phone.src} alt={phone.alt} />
+          <PhoneFrame
+            src={phone.src}
+            alt={phone.alt}
+            shift={still ? undefined : phoneShift}
+          />
         </motion.div>
       )}
     </div>
@@ -248,7 +326,7 @@ function PhoneFan({
   const shots = project.shots.filter((s) => s.frame === "phone").slice(0, 4);
 
   return (
-    <div className="flex items-center justify-center gap-3 sm:gap-5">
+    <div className="preserve-3d flex items-center justify-center gap-3 sm:gap-5">
       {shots.map((shot, i) => (
         <FannedPhone
           key={shot.src}
@@ -283,6 +361,14 @@ function FannedPhone({
 
   const y = useTransform(progress, [0.15, 0.9], [60 + depth * 34, -40 - depth * 26]);
   const rotate = useTransform(progress, [0.15, 0.9], [offset * 5, offset * -3]);
+  // Outer phones tip away from centre, which turns a flat row into a fan.
+  const rotateY = useTransform(progress, [0.15, 0.5, 0.9], [offset * 9, offset * 4, offset * 10]);
+  // Each screen pans a little, staggered by position, so they don't move in lockstep.
+  const shift = useTransform(
+    progress,
+    [0.15, 0.9],
+    [`${-2 - depth * 0.6}%`, `${2 + depth * 0.6}%`],
+  );
 
   return (
     <motion.div
@@ -290,10 +376,16 @@ function FannedPhone({
       style={
         still
           ? undefined
-          : { y, rotate, zIndex: total - depth, opacity: 1 - depth * 0.08 }
+          : {
+              y,
+              rotate,
+              rotateY,
+              zIndex: total - depth,
+              opacity: 1 - depth * 0.08,
+            }
       }
     >
-      <PhoneFrame src={shot.src} alt={shot.alt} />
+      <PhoneFrame src={shot.src} alt={shot.alt} shift={still ? undefined : shift} />
     </motion.div>
   );
 }

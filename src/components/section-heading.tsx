@@ -1,4 +1,5 @@
 import { Reveal } from "@/components/motion/reveal";
+import { RevealChars } from "@/components/motion/text";
 
 export function SectionHeading({
   eyebrow,
@@ -17,11 +18,9 @@ export function SectionHeading({
           <span className="text-xs uppercase tracking-[0.2em] text-accent">{eyebrow}</span>
         </div>
       </Reveal>
-      <Reveal delay={0.08}>
-        <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-semibold leading-[1.05] tracking-[-0.02em]">
-          {title}
-        </h2>
-      </Reveal>
+      <h2 className="preserve-3d text-[clamp(2rem,4.5vw,3.25rem)] font-semibold leading-[1.05] tracking-[-0.02em] [perspective:700px]">
+        <RevealChars text={title} stagger={0.022} />
+      </h2>
       {lead && (
         <Reveal delay={0.16}>
           <p className="mt-5 leading-relaxed text-muted">{lead}</p>
