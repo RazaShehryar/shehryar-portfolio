@@ -9,7 +9,7 @@ export function Projects() {
         <SectionHeading
           eyebrow="Projects"
           title="Products that shipped"
-          lead="Three that are live right now. Scroll through each one — the screens move as you read."
+          lead="Four that are live right now, from a wallet used across Saudi Arabia to a marketplace in Ghana. Scroll through each one — the screens move as you read."
         />
       </div>
 

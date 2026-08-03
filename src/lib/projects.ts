@@ -31,6 +31,31 @@ export type Project = {
 /** Projects that get the full scroll-driven showcase. */
 export const featured: Project[] = [
   {
+    slug: "urpay",
+    name: "urpay",
+    blurb: "A digital wallet used across Saudi Arabia",
+    description:
+      "A production digital wallet for peer-to-peer and international transfers, bill payments and card issuance. I led full-cycle development of the React Native application, including the secure transaction flows and audit logging behind every payment.",
+    year: "2023 — Present",
+    role: "Lead mobile engineer · React Native",
+    accent: "#2D5BFF",
+    status: "live",
+    icon: "/projects/urpay-icon.webp",
+    links: [
+      { label: "urpay.com.sa", href: "https://urpay.com.sa" },
+      { label: "App Store", href: "https://apps.apple.com/us/app/urpay/id1585778338" },
+    ],
+    stack: ["React Native", "TypeScript", "Payments", "Apple Pay", "Secure flows"],
+    highlights: [
+      "Rated 4.6 across more than 155,000 App Store reviews.",
+      "Still shipping — currently at version 5.35, updated August 2026.",
+      "Transfers to over 140 countries through MoneyGram, Ria and Tahweel Al Rajhi.",
+      "Top-ups via bank cards, Apple Pay, Samsung Pay and bank transfer.",
+      "Built secure transaction flows with structured error handling and audit logs.",
+    ],
+    shots: [{ src: "/projects/urpay-web.webp", alt: "urpay digital wallet", frame: "browser" }],
+  },
+  {
     slug: "makolahub",
     name: "MakolaHub",
     blurb: "A B2B marketplace putting Ghanaian businesses online",
@@ -110,25 +135,149 @@ export const featured: Project[] = [
     ],
   },
   {
+    slug: "hera",
+    name: "Hera",
+    blurb: "Operations software for Amazon delivery partners",
+    description:
+      "A workforce platform for Amazon delivery service partners, covering scheduling, driver coaching, compliance and performance tracking. Built for the operators who run those fleets day to day.",
+    year: "2024 — 2025",
+    role: "Frontend engineer",
+    accent: "#16A97F",
+    status: "live",
+    links: [{ label: "hera.app", href: "https://hera.app" }],
+    stack: ["React", "TypeScript", "Node", "Scheduling", "Reporting"],
+    highlights: [
+      "Scheduling, coaching, compliance and performance tracking in one platform.",
+      "Priced per active driver, so the interface had to stay legible at fleet scale.",
+      "Built for daily operational use rather than occasional reporting.",
+    ],
+    shots: [{ src: "/projects/hera-web.webp", alt: "Hera operations platform", frame: "browser" }],
+  },
+];
+
+export type WorkCard = {
+  slug: string;
+  name: string;
+  year: string;
+  role: string;
+  note: string;
+  stack: string[];
+  image?: string;
+  /** Portrait art is shown inside a phone frame; landscape fills the card. */
+  imageShape?: "portrait" | "landscape";
+  icon?: string;
+  accent: string;
+  status?: "live" | "archived";
+  preview?: string;
+  links?: { label: string; href: string }[];
+};
+
+/**
+ * Everything else worth showing, as a grid rather than a full scroll
+ * showcase. Several of these predate any surviving screenshots — where only
+ * an app icon exists, that is what is shown rather than a stand-in mockup.
+ */
+export const moreWork: WorkCard[] = [
+  {
     slug: "securehire",
     name: "SecureHire",
-    blurb: "Pre-employment screening, front to back",
-    description:
-      "An employment screening platform with a candidate-facing application and an employer dashboard. I built both the mobile app and the backing service.",
     year: "2023",
     role: "Full-stack engineer",
+    note: "Pre-employment screening platform with a candidate app and an employer dashboard. I wrote both the application and the backing service.",
+    stack: ["React Native", "Node", "Express", "MongoDB"],
+    image: "/projects/securehire-web.webp",
     accent: "#F2A93B",
     status: "live",
     preview: "https://securehire.com",
     links: [{ label: "securehire.com", href: "https://securehire.com" }],
-    stack: ["React Native", "Node", "Express", "MongoDB"],
-    highlights: [
-      "Sole author of both the application and the backend service.",
-      "Employer dashboard for ordering and tracking screening checks.",
-    ],
-    shots: [
-      { src: "/projects/securehire-web.webp", alt: "SecureHire platform", frame: "browser" },
-    ],
+  },
+  {
+    slug: "contango",
+    name: "Contango",
+    year: "2024",
+    role: "Contracted engineer",
+    note: "Engaged through Contango as a contracted resource on a United Arab Emirates government digital transformation programme.",
+    stack: ["React", "TypeScript", "Enterprise"],
+    image: "/projects/contango-web.webp",
+    accent: "#8B6CF0",
+    status: "live",
+    preview: "https://www.contango.ae/",
+    links: [{ label: "contango.ae", href: "https://www.contango.ae/" }],
+  },
+  {
+    slug: "legacy-memoirs",
+    name: "Legacy Memoirs",
+    year: "2022 — 2023",
+    role: "Lead mobile engineer",
+    note: "An app for recording and preserving family life stories. I wrote 320 of its 327 commits, effectively building it end to end.",
+    stack: ["React Native", "Expo", "Firebase"],
+    image: "/projects/legacy-2.webp",
+    imageShape: "portrait",
+    icon: "/projects/legacy-icon.webp",
+    accent: "#E06B4F",
+  },
+  {
+    slug: "smaplr",
+    name: "SMAPLR",
+    year: "2022 — 2025",
+    role: "Frontend engineer, React",
+    note: "A multi-tenant planning platform. I built the sub-domain routing that gave every client its own database, workspace and interface theme from one codebase. 388 of its 426 commits are mine.",
+    stack: ["React", "TypeScript", "Multi-tenancy", "Sub-domain routing"],
+    accent: "#4C8DFF",
+    status: "archived",
+  },
+  {
+    slug: "early-friday",
+    name: "Early Friday",
+    year: "2022",
+    role: "Frontend engineer, React",
+    note: "Client workspace product built on the same multi-tenant approach: isolated databases and per-client theming behind a shared frontend.",
+    stack: ["React", "JavaScript", "Multi-tenancy"],
+    accent: "#D9A441",
+    status: "archived",
+  },
+  {
+    slug: "seven-invites",
+    name: "Seven Invites",
+    year: "2021 — 2022",
+    role: "Senior software engineer",
+    note: "Consumer social invitations platform. I contributed 2,143 commits, built the reusable component library and the Stripe and Twilio integrations behind it.",
+    stack: ["React", "TypeScript", "Stripe", "Twilio", "GCP Tasks"],
+    accent: "#E0518F",
+    links: [{ label: "Instagram", href: "https://www.instagram.com/seveninvites/" }],
+  },
+  {
+    slug: "srvhub",
+    name: "SrvHub & SrvHub Pro",
+    year: "2021",
+    role: "Mobile engineer",
+    note: "Paired marketplace apps for home services — one for customers, one for providers — sharing a design system and backend.",
+    stack: ["React Native", "Expo", "Firebase"],
+    icon: "/projects/srvhub-icon.webp",
+    accent: "#3BA9C4",
+    status: "archived",
+  },
+  {
+    slug: "bensboat",
+    name: "BensBoat English",
+    year: "2021 — 2022",
+    role: "Sole engineer",
+    note: "English-learning app built for Thai schools. Every one of its 129 commits is mine.",
+    stack: ["React Native", "Expo", "Firebase Realtime DB"],
+    icon: "/projects/bensboat-icon.webp",
+    accent: "#5FBF7F",
+    status: "archived",
+  },
+  {
+    slug: "pikkett",
+    name: "Pikkitt",
+    year: "2021",
+    role: "Sole engineer",
+    note: "Early-stage consumer app taken from empty repository to a working build.",
+    stack: ["React Native", "Expo"],
+    icon: "/projects/pikkett-icon.webp",
+    accent: "#9B6BD6",
+    status: "archived",
   },
 ];
 
@@ -178,21 +327,6 @@ export const timeline: TimelineEntry[] = [
   },
   {
     year: "2023",
-    name: "Legacy Memoirs",
-    kind: "Client",
-    note: "Life-story recording app; I wrote 320 of its 327 commits.",
-    commits: 320,
-  },
-  {
-    year: "2023",
-    name: "SecureHire",
-    kind: "Client",
-    note: "Pre-employment screening app and backend.",
-    commits: 66,
-    status: "live",
-  },
-  {
-    year: "2023",
     name: "Bath refinishing operations panel",
     kind: "Client",
     note: "Scheduling and job management for a refinishing business.",
@@ -239,20 +373,6 @@ export const timeline: TimelineEntry[] = [
     kind: "Product team",
     note: "Blockchain voting app, still shipping today.",
     status: "live",
-  },
-  {
-    year: "2021",
-    name: "BensBoat English",
-    kind: "Client",
-    note: "English-learning app for Thai schools; every one of its 129 commits is mine.",
-    commits: 129,
-  },
-  {
-    year: "2021",
-    name: "SrvHub customer & pro apps",
-    kind: "Client",
-    note: "Paired marketplace apps for home services.",
-    commits: 64,
   },
   {
     year: "2020",

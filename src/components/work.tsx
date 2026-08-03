@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useSpring } from "motion/react";
-import { experience } from "@/lib/site";
+import { education, experience } from "@/lib/site";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionHeading } from "@/components/section-heading";
 
@@ -34,7 +34,7 @@ export function Work() {
 
         <div className="space-y-14 md:space-y-20 md:pl-12">
           {experience.map((role, i) => (
-            <Reveal key={role.title} delay={i * 0.04}>
+            <Reveal key={`${role.period}-${role.title}`} delay={i * 0.04}>
               <article className="relative">
                 <span
                   aria-hidden
@@ -77,6 +77,31 @@ export function Work() {
               </article>
             </Reveal>
           ))}
+
+          <Reveal>
+            <article className="relative border-t border-line pt-10">
+              <span
+                aria-hidden
+                className="absolute -left-12 top-[2.85rem] hidden h-2 w-2 -translate-x-1/2 rounded-full bg-line ring-4 ring-ink md:block"
+              />
+              <div className="mb-2 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                <span className="font-mono text-xs text-faint">{education.period}</span>
+                <span className="text-xs text-faint">Education</span>
+              </div>
+              <h3 className="mb-1 text-xl font-semibold tracking-tight">{education.degree}</h3>
+              <p className="mb-4 text-sm text-muted">{education.school}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {education.research.map((r) => (
+                  <span
+                    key={r}
+                    className="rounded-full border border-line bg-white/[0.03] px-2.5 py-1 text-xs text-muted"
+                  >
+                    {r}
+                  </span>
+                ))}
+              </div>
+            </article>
+          </Reveal>
         </div>
       </div>
     </section>

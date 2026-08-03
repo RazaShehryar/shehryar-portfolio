@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import Image from "next/image";
 import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
-import { ArrowDown, Mail } from "lucide-react";
+import { ArrowDown, FileText, Mail } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/icons";
 import { site, stats } from "@/lib/site";
 import { Reveal } from "@/components/motion/reveal";
@@ -95,6 +95,17 @@ export function Hero() {
                   className="inline-flex rounded-full border border-line px-6 py-3 text-sm transition-colors hover:border-accent/60 hover:text-accent"
                 >
                   Get in touch
+                </a>
+              </Magnetic>
+              <Magnetic strength={0.4}>
+                <a
+                  href={site.cv}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-line px-6 py-3 text-sm transition-colors hover:border-accent/60 hover:text-accent"
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  CV
                 </a>
               </Magnetic>
               <div className="ml-1 flex items-center gap-1">
