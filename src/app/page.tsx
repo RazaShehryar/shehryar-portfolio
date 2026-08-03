@@ -1,4 +1,5 @@
 import { Intro } from "@/components/intro";
+import { Tracker } from "@/components/tracker";
 import { SmoothScroll } from "@/components/smooth-scroll";
 import { Aurora } from "@/components/aurora";
 import { Nav } from "@/components/nav";
@@ -15,6 +16,7 @@ export default function Home() {
   return (
     <>
       <Intro />
+      <Tracker />
       <SmoothScroll />
       <Aurora />
       <Nav />

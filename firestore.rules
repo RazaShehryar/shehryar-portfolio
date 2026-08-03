@@ -26,10 +26,40 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Per-day traffic aggregates: view count, unique count and a per-source
+    // tally. Counters only — no IP, no user agent, no visitor identifier — so
+    // these are safe to expose for the nightly report to read back.
+    match /stats/{day} {
+      allow read: if true;
+      allow create: if isStatsShape() && request.resource.data.views == 1;
+      allow update: if isStatsShape()
+                    && request.resource.data.views == resource.data.views + 1;
+      allow delete: if false;
+    }
+
+    // Contact submissions per day, kept separate so its counter and the view
+    // counter can each have a single-increment rule of their own.
+    match /contactStats/{day} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['count'])
+                    && request.resource.data.count == 1;
+      allow update: if request.resource.data.keys().hasOnly(['count'])
+                    && request.resource.data.count == resource.data.count + 1;
+      allow delete: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
   }
+}
+
+function isStatsShape() {
+  let d = request.resource.data;
+  return d.keys().hasOnly(['views', 'uniques', 'sources'])
+    && d.views is int && d.views > 0
+    && (!('uniques' in d) || d.uniques is int)
+    && (!('sources' in d) || d.sources is map);
 }
 
 function isWellFormedContact() {

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, doc, increment, serverTimestamp, setDoc } from "firebase/firestore";
+import { dayKey } from "@/lib/analytics";
 import { Check, Loader2, Mail } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/icons";
 import { getDb } from "@/lib/firebase";
@@ -44,6 +45,19 @@ export function Contact() {
         message,
         createdAt: serverTimestamp(),
       });
+
+      // Bump the day's enquiry counter for the nightly report. A failure here
+      // must not make a delivered message look like it failed.
+      try {
+        await setDoc(
+          doc(db, "contactStats", dayKey(new Date())),
+          { count: increment(1) },
+          { merge: true },
+        );
+      } catch {
+        /* counter only — the message itself is already saved */
+      }
+
       setState("sent");
       form.reset();
     } catch {
