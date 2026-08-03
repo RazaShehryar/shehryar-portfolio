@@ -341,7 +341,12 @@ export function Dashboard() {
 
         <Panel title="Time on page">
           <BarList
-            rows={Object.entries(dwell).map(([k, v]) => [DWELL_LABELS[k] ?? k, v])}
+            rows={
+              // Cumulative bands, so they read top-down in milestone order.
+              (["s10", "s30", "s60", "s180", "s600"] as const).map(
+                (k) => [DWELL_LABELS[k], dwell[k] ?? 0] as [string, number],
+              )
+            }
             total={dwellTotal}
             colour="#2DD4BF"
             empty="No sessions measured yet."
