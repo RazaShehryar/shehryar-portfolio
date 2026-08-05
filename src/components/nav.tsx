@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion, useScroll, useSpring } from "motion/react";
 import { Menu, X } from "lucide-react";
 
 const links = [
@@ -20,15 +19,77 @@ export function Nav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
-  const { scrollYProgress } = useScroll();
-  const bar = useSpring(scrollYProgress, { stiffness: 140, damping: 30, restDelta: 0.001 });
+  const barRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const pillRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    // One passive listener drives both the backdrop state and the progress
+    // bar. The bar is written straight to the element's transform rather than
+    // through React, so scrolling never triggers a render.
+    let queued = 0;
+    const onScroll = () => {
+      if (queued) return;
+      queued = requestAnimationFrame(() => {
+        queued = 0;
+        setScrolled(window.scrollY > 24);
+        const bar = barRef.current;
+        if (!bar) return;
+        const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = scrollable > 0 ? window.scrollY / scrollable : 0;
+        bar.style.transform = `scaleX(${progress})`;
+      });
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      if (queued) cancelAnimationFrame(queued);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
+
+  /**
+   * Slides the active pill onto the current tab.
+   *
+   * Measuring the link and moving one absolutely positioned element gives the
+   * same glide a layout animation would, for a transform transition and no
+   * library. Width and position are set together so the pill stretches as it
+   * travels rather than resizing on arrival.
+   */
+  const placed = useRef(false);
+  const movePill = useCallback(() => {
+    const list = listRef.current;
+    const pill = pillRef.current;
+    if (!list || !pill) return;
+    const active = list.querySelector<HTMLElement>("[data-active='true']");
+    if (!active) {
+      pill.style.opacity = "0";
+      placed.current = false;
+      return;
+    }
+    // The first placement jumps. Only movement between tabs should glide —
+    // otherwise the pill visibly slides in from the left on every page load.
+    if (!placed.current) {
+      pill.style.transition = "none";
+      requestAnimationFrame(() => {
+        pill.style.transition = "";
+      });
+      placed.current = true;
+    }
+    pill.style.opacity = "1";
+    pill.style.width = `${active.offsetWidth}px`;
+    pill.style.transform = `translateX(${active.offsetLeft}px)`;
+  }, []);
+
+  // Before paint, so the pill is never seen at the previous tab's position.
+  useLayoutEffect(movePill, [pathname, movePill]);
+
+  useEffect(() => {
+    window.addEventListener("resize", movePill);
+    return () => window.removeEventListener("resize", movePill);
+  }, [movePill]);
 
   // Close the mobile menu whenever the route changes.
   useEffect(() => setOpen(false), [pathname]);
@@ -41,9 +102,11 @@ export function Nav() {
           : "border-b border-transparent"
       }`}
     >
-      <motion.div
+      <div
+        ref={barRef}
+        aria-hidden
         className="absolute inset-x-0 bottom-0 h-px origin-left bg-accent"
-        style={{ scaleX: bar }}
+        style={{ transform: "scaleX(0)" }}
       />
 
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
@@ -52,26 +115,25 @@ export function Nav() {
           Shehryar Raza
         </Link>
 
-        <div className="hidden items-center gap-1 md:flex">
+        <div ref={listRef} className="relative hidden items-center gap-1 md:flex">
+          <span
+            ref={pillRef}
+            aria-hidden
+            className="absolute left-0 top-1/2 -z-10 h-[calc(100%-0.25rem)] -translate-y-1/2 rounded-full bg-white/[0.07] transition-[transform,width,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            style={{ opacity: 0 }}
+          />
           {links.map((l) => {
             const active = pathname === l.href || pathname.startsWith(`${l.href}/`);
             return (
               <Link
                 key={l.href}
                 href={l.href}
+                data-active={active}
                 aria-current={active ? "page" : undefined}
                 className={`relative rounded-full px-3.5 py-1.5 text-sm transition-colors ${
                   active ? "text-fg" : "text-muted hover:text-fg"
                 }`}
               >
-                {active && (
-                  // A shared layoutId lets the pill glide between tabs.
-                  <motion.span
-                    layoutId="nav-active"
-                    className="absolute inset-0 -z-10 rounded-full bg-white/[0.07]"
-                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                  />
-                )}
                 {l.label}
               </Link>
             );

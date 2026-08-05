@@ -1,8 +1,7 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
 import { ArrowDown, FileText, Mail } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/icons";
 import { trackEvent } from "@/lib/track-event";
@@ -14,18 +13,53 @@ import { CountUp } from "@/components/motion/count-up";
 
 export function Hero() {
   const ref = useRef<HTMLElement>(null);
-  const reduced = useReducedMotion();
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const portraitRef = useRef<HTMLDivElement>(null);
 
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
-  });
+  /**
+   * The hero sinks and dims as the next section climbs over it, with the
+   * portrait drifting the other way.
+   *
+   * One rAF-throttled listener writing two transforms, rather than four
+   * animation-library motion values each with their own subscription. Nothing
+   * here goes through React, so scrolling causes no renders at all. CSS scroll
+   * timelines would be the right tool but Safari and Firefox do not have them.
+   */
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  // The hero sinks and dims as the next section climbs over it.
-  const y = useTransform(scrollYProgress, [0, 1], [0, 140]);
-  const opacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
-  const portraitY = useTransform(scrollYProgress, [0, 1], [0, -70]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
+    let queued = 0;
+    const onScroll = () => {
+      if (queued) return;
+      queued = requestAnimationFrame(() => {
+        queued = 0;
+        const section = ref.current;
+        if (!section) return;
+        const height = section.offsetHeight || 1;
+        // 0 at rest, 1 once the section has scrolled fully past the top.
+        const p = Math.min(1, Math.max(0, window.scrollY / height));
+
+        const body = bodyRef.current;
+        if (body) {
+          body.style.transform = `translate3d(0, ${p * 140}px, 0)`;
+          body.style.opacity = `${Math.max(0, 1 - p / 0.75)}`;
+        }
+        const portrait = portraitRef.current;
+        if (portrait) {
+          portrait.style.transform = `translate3d(0, ${p * -70}px, 0) scale(${1 + p * 0.06})`;
+        }
+      });
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      if (queued) cancelAnimationFrame(queued);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
 
   return (
     <section
@@ -43,9 +77,9 @@ export function Hero() {
         className="pointer-events-none absolute -right-24 bottom-0 -z-10 h-[45vh] w-[45vw] rounded-full bg-indigo-500/10 blur-[140px]"
       />
 
-      <motion.div
+      <div
+        ref={bodyRef}
         className="mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 items-center gap-14 px-6 py-10 lg:grid-cols-[1.25fr_0.75fr] lg:gap-20"
-        style={reduced ? undefined : { y, opacity }}
       >
         <div>
           <Reveal>
@@ -126,9 +160,9 @@ export function Hero() {
         </div>
 
         {/* Portrait */}
-        <motion.div
+        <div
+          ref={portraitRef}
           className="relative mx-auto w-56 sm:w-72 lg:w-full lg:max-w-sm"
-          style={reduced ? undefined : { y: portraitY, scale }}
         >
           <Reveal y={40} delay={0.2}>
             <div className="relative">
@@ -138,15 +172,13 @@ export function Hero() {
               />
               {/* A conic sweep rotating just behind the frame, so the rim
                   catches light as though something is moving off-camera. */}
-              <motion.div
+              <div
                 aria-hidden
-                className="absolute -inset-[3px] rounded-full opacity-70"
+                className="rim-spin absolute -inset-[3px] rounded-full opacity-70"
                 style={{
                   background:
                     "conic-gradient(from 0deg, transparent 0deg, var(--color-accent) 55deg, transparent 130deg, transparent 240deg, rgba(120,120,255,0.7) 300deg, transparent 360deg)",
                 }}
-                animate={reduced ? undefined : { rotate: 360 }}
-                transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
               />
               <div className="relative aspect-square overflow-hidden rounded-full border border-white/10 bg-ink">
                 <Image
@@ -160,8 +192,8 @@ export function Hero() {
               </div>
             </div>
           </Reveal>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
       {/* Stats strip — sits in flow so it always lands on the fold. */}
       <div className="border-t border-line/60">
@@ -180,15 +212,13 @@ export function Hero() {
         </div>
       </div>
 
-      <motion.a
+      <a
         href="/work"
         aria-label="Scroll to work"
         className="pointer-events-auto absolute bottom-[7.5rem] left-1/2 hidden -translate-x-1/2 text-faint transition-colors hover:text-accent lg:block"
-        animate={reduced ? undefined : { y: [0, 8, 0] }}
-        transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
       >
-        <ArrowDown className="h-4 w-4" />
-      </motion.a>
+        <ArrowDown className="nudge-down h-4 w-4" />
+      </a>
     </section>
   );
 }

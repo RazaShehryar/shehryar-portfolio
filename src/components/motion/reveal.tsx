@@ -1,7 +1,4 @@
-"use client";
-
-import { motion, useReducedMotion } from "motion/react";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 type Props = {
   children: ReactNode;
@@ -14,31 +11,23 @@ type Props = {
 
 /**
  * Fades and lifts content the first time it enters the viewport.
- * Collapses to a plain fade when the visitor prefers reduced motion.
+ *
+ * No `"use client"`, no hooks, no library: the transition lives in `globals.css`
+ * and `RevealObserver` — one observer for the whole document — adds the class
+ * that runs it. Reduced motion is handled in CSS, so this renders the same
+ * markup either way.
  */
 export function Reveal({ children, delay = 0, y = 28, className }: Props) {
-  const reduced = useReducedMotion();
+  // Custom properties aren't in React's CSSProperties, so this is built as a
+  // plain record and handed over on the way out.
+  const vars: Record<string, string> = {};
+  if (delay) vars["--reveal-delay"] = `${delay}s`;
+  if (y !== 28) vars["--reveal-y"] = `${y}px`;
 
   return (
-    <motion.div
-      className={className}
-      // Marks the element for the `<noscript>` override in the root layout:
-      // without JavaScript the inline `opacity: 0` below never gets animated
-      // away, and the page would render blank.
-      data-reveal=""
-      initial={{ opacity: 0, y: reduced ? 0 : y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      // A visibility threshold rather than a negative margin: a negative
-      // bottom margin never fires for content sitting on the initial fold.
-      viewport={{ once: true, amount: 0.25 }}
-      transition={{
-        duration: reduced ? 0.2 : 0.85,
-        delay: reduced ? 0 : delay,
-        ease: [0.16, 1, 0.3, 1],
-      }}
-    >
+    <div data-reveal="" className={className} style={vars as CSSProperties}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -52,28 +41,19 @@ export function RevealWords({
   className?: string;
   delay?: number;
 }) {
-  const reduced = useReducedMotion();
   const words = text.split(" ");
 
   return (
-    <span className={className}>
+    <span data-reveal-group="" className={className}>
       {words.map((word, i) => (
         <span key={`${word}-${i}`} className="inline-block overflow-hidden align-bottom">
-          <motion.span
-            className="inline-block"
-            data-reveal=""
-            initial={{ y: reduced ? 0 : "100%", opacity: reduced ? 0 : 1 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{
-              duration: reduced ? 0.2 : 0.9,
-              delay: reduced ? 0 : delay + i * 0.045,
-              ease: [0.16, 1, 0.3, 1],
-            }}
+          <span
+            data-reveal-item=""
+            style={{ ["--reveal-delay" as string]: `${delay + i * 0.045}s` }}
           >
             {word}
-            {i < words.length - 1 ? " " : ""}
-          </motion.span>
+            {i < words.length - 1 ? " " : ""}
+          </span>
         </span>
       ))}
     </span>

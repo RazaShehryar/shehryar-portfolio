@@ -1,12 +1,16 @@
 "use client";
 
 import { useRef, type ReactNode } from "react";
-import { motion, useMotionValue, useSpring, useReducedMotion } from "motion/react";
 
 /**
- * Pulls its child toward the cursor while the pointer is nearby, then springs
- * back on exit. The displacement is capped at a fraction of the element's own
- * size so it reads as attraction rather than as the button running away.
+ * Pulls its child toward the cursor while the pointer is nearby, then eases
+ * back on exit. The displacement is a fraction of the distance from centre so
+ * it reads as attraction rather than as the button running away.
+ *
+ * The transform is written straight to the node. Following a cursor through
+ * React state would re-render on every pointer event, and a spring library is
+ * a lot of bytes for what a transition does adequately: a short duration while
+ * tracking keeps it responsive, a longer one on release gives it the settle.
  */
 export function Magnetic({
   children,
@@ -18,34 +22,32 @@ export function Magnetic({
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const reduced = useReducedMotion();
-
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 260, damping: 18, mass: 0.35 });
-  const sy = useSpring(y, { stiffness: 260, damping: 18, mass: 0.35 });
-
-  if (reduced) return <div className={className}>{children}</div>;
 
   return (
-    <motion.div
+    <div
       ref={ref}
       className={className}
-      style={{ x: sx, y: sy }}
+      style={{ transition: "transform 0.45s cubic-bezier(0.16, 1, 0.3, 1)" }}
       onPointerMove={(e) => {
+        // Coarse pointers have no hover, and on touch this would fire once on
+        // tap and leave the element offset.
+        if (e.pointerType !== "mouse") return;
         const el = ref.current;
         if (!el) return;
         const r = el.getBoundingClientRect();
-        // Offset from the element's centre, scaled down.
-        x.set((e.clientX - (r.left + r.width / 2)) * strength);
-        y.set((e.clientY - (r.top + r.height / 2)) * strength);
+        const x = (e.clientX - (r.left + r.width / 2)) * strength;
+        const y = (e.clientY - (r.top + r.height / 2)) * strength;
+        el.style.transition = "transform 0.12s linear";
+        el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       }}
       onPointerLeave={() => {
-        x.set(0);
-        y.set(0);
+        const el = ref.current;
+        if (!el) return;
+        el.style.transition = "transform 0.45s cubic-bezier(0.16, 1, 0.3, 1)";
+        el.style.transform = "";
       }}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }

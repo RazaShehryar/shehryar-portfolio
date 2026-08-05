@@ -78,9 +78,188 @@ body {
   mask-image: linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
 }
 
+/* ---------------------------------------------------------------------------
+   Scroll reveals.
+
+   These were React components wrapping every animated element, which meant a
+   viewport observer and a subscription per node — 73 of them on the homepage
+   alone. Now one shared IntersectionObserver adds `.is-visible` and the
+   compositor does the rest, so nothing here touches the main thread.
+
+   The initial state lives on the element itself rather than on a parent, so
+   server-rendered HTML already carries it and there is no flash before the
+   observer attaches. `[data-reveal]` without JavaScript is handled by the
+   noscript block in the root layout.
+--------------------------------------------------------------------------- */
+[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, var(--reveal-y, 28px), 0);
+  transition:
+    opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0s);
+  will-change: opacity, transform;
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+  /* Dropped once the animation is done so long pages don't hold dozens of
+     promoted layers alive for nothing. */
+  will-change: auto;
+}
+
+/* Words and characters rise out of an overflow-hidden parent rather than
+   fading, so they travel further and start fully clipped. */
+[data-reveal-item] {
+  display: inline-block;
+  transform: translate3d(0, 100%, 0);
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0s);
+}
+
+/* Characters additionally tip away from the reader, so the line reads as a
+   title card turning into place rather than a row of sliding letters. */
+[data-reveal-item="char"] {
+  opacity: 0;
+  transform: translate3d(0, 115%, 0) rotateX(-55deg);
+  transition:
+    opacity 0.95s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.95s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0s);
+}
+
+.is-visible [data-reveal-item] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Page-arrival fade, applied once on mount rather than watched for. */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.page-in {
+  animation: page-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Cursor spotlight. Both layers read the pointer position from custom
+   properties the component writes, so following the cursor never renders. */
+.spotlight {
+  --spot-x: -9999px;
+  --spot-y: -9999px;
+  --spot-o: 0;
+}
+
+.spotlight-edge,
+.spotlight-wash {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: var(--spot-o);
+  transition: opacity 0.3s ease;
+}
+
+.spotlight-edge {
+  padding: 1px;
+  background: radial-gradient(
+    var(--spot-r, 320px) circle at var(--spot-x) var(--spot-y),
+    rgba(255, 140, 70, 0.55),
+    transparent 68%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.spotlight-wash {
+  background: radial-gradient(
+    var(--spot-r, 320px) circle at var(--spot-x) var(--spot-y),
+    rgba(255, 122, 48, 0.14),
+    transparent 72%
+  );
+}
+
+/* The hero's portrait rim: a conic sweep turning just behind the frame, so the
+   edge catches light as though something is moving off-camera. */
+@keyframes rim-spin {
+  to { transform: rotate(360deg); }
+}
+
+.rim-spin { animation: rim-spin 14s linear infinite; }
+
+@keyframes nudge-down {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, 8px, 0); }
+}
+
+.nudge-down { animation: nudge-down 2.4s ease-in-out infinite; }
+
+/* Opening curtain. The two halves slide apart; the element unmounts on the
+   animation end of whichever finishes, so no timer has to match these numbers. */
+@keyframes curtain-up {
+  to { transform: translate3d(0, -100%, 0); }
+}
+
+@keyframes curtain-down {
+  to { transform: translate3d(0, 100%, 0); }
+}
+
+@keyframes curtain-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.9); opacity: 0.5; }
+}
+
+.curtain-up { animation: curtain-up 0.9s cubic-bezier(0.76, 0, 0.24, 1) forwards; }
+.curtain-down { animation: curtain-down 0.9s cubic-bezier(0.76, 0, 0.24, 1) forwards; }
+.curtain-pulse { animation: curtain-pulse 1.1s ease-in-out infinite; }
+
+/* Ambient background drift. Three independent loops on the compositor; the
+   previous version ran them through a scroll-linked hue-rotate over a 160px
+   blur, which repainted the whole viewport on every frame of every scroll. */
+@keyframes aurora-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(90px, -60px, 0) scale(1.14); }
+  66% { transform: translate3d(-40px, 40px, 0) scale(0.94); }
+}
+
+@keyframes aurora-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(-80px, 70px, 0) scale(0.9); }
+  66% { transform: translate3d(50px, -30px, 0) scale(1.16); }
+}
+
+@keyframes aurora-c {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(60px, -50px, 0) scale(1.1); }
+  66% { transform: translate3d(-70px, 30px, 0) scale(0.92); }
+}
+
+.aurora-a { animation: aurora-a 26s ease-in-out infinite; }
+.aurora-b { animation: aurora-b 32s ease-in-out infinite 1.5s; }
+.aurora-c { animation: aurora-c 38s ease-in-out infinite 3s; }
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  /* Reveals resolve immediately rather than animating in. */
+  [data-reveal],
+  [data-reveal-item] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 
   *,
