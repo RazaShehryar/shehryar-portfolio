@@ -51,6 +51,7 @@ export function RevealChars({
             <span key={`${char}-${c}`} className="inline-block overflow-hidden align-bottom">
               <motion.span
                 className="inline-block will-change-transform"
+                data-reveal=""
                 variants={{
                   hidden: { y: "115%", rotateX: -55, opacity: 0 },
                   visible: {
@@ -120,7 +121,7 @@ function Word({
   const opacity = useTransform(progress, [range[0] - 0.08, range[1]], [0.18, 1]);
 
   return (
-    <motion.span style={{ opacity }} className="inline-block">
+    <motion.span style={{ opacity }} data-reveal="" className="inline-block">
       {children}
       &nbsp;
     </motion.span>

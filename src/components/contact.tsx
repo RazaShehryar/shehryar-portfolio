@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { addDoc, collection, doc, increment, serverTimestamp, setDoc } from "firebase/firestore";
 import { dayKey } from "@/lib/analytics";
 import { trackEvent } from "@/lib/track-event";
@@ -15,10 +15,27 @@ type State = "idle" | "sending" | "sent" | "error";
 
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
+/** Two minutes between submissions from one browser. */
+const COOLDOWN_MS = 2 * 60 * 1000;
+const LAST_SENT_KEY = "contact-last-sent";
+
+/**
+ * How long a real person needs to read the form and type a message. Anything
+ * faster is a script that filled every field the moment the page loaded.
+ */
+const MIN_FILL_MS = 3000;
+
 export function Contact() {
   const [state, setState] = useState<State>("idle");
   const startedRef = useRef(false);
+  // Stamped on mount rather than during render: `Date.now()` in a render body
+  // is impure, and a re-render would quietly restart the clock.
+  const mountedAt = useRef(0);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    mountedAt.current = Date.now();
+  }, []);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -28,6 +45,26 @@ export function Contact() {
     const name = String(data.get("name") ?? "").trim();
     const email = String(data.get("email") ?? "").trim();
     const message = String(data.get("message") ?? "").trim();
+
+    // The honeypot is hidden from people and from screen readers, so only a
+    // bot filling every field it finds will have touched it. Report success:
+    // telling a spammer why it failed only helps it try again.
+    if (String(data.get("company") ?? "")) {
+      form.reset();
+      return setState("sent");
+    }
+
+    if (Date.now() - mountedAt.current < MIN_FILL_MS) {
+      return fail("That was quick — give it another moment and try again.");
+    }
+
+    // Firestore is written to straight from the browser, so this and the
+    // honeypot are the only throttle in front of it. Neither survives a
+    // determined script, but both stop the drive-by ones.
+    const last = Number(readStorage(LAST_SENT_KEY) ?? 0);
+    if (last && Date.now() - last < COOLDOWN_MS) {
+      return fail("You've just sent one. Give it a couple of minutes.");
+    }
 
     // Mirror the Firestore rules so a bad submission fails here, not there.
     if (!name || name.length > 100) return fail("Please enter your name.");
@@ -60,6 +97,7 @@ export function Contact() {
         /* counter only — the message itself is already saved */
       }
 
+      writeStorage(LAST_SENT_KEY, String(Date.now()));
       trackEvent("contact_sent");
       setState("sent");
       form.reset();
@@ -113,6 +151,21 @@ export function Contact() {
               <Field label="Name" name="name" type="text" placeholder="Your name" />
               <Field label="Email" name="email" type="email" placeholder="you@company.com" />
 
+              {/* Honeypot. Hidden rather than `display: none` so bots that skip
+                  undisplayed fields still fill it, and `aria-hidden` with a
+                  negative tab index so nobody using the form ever reaches it. */}
+              <div aria-hidden className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
+                <label htmlFor="company">Company</label>
+                <input
+                  id="company"
+                  name="company"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  defaultValue=""
+                />
+              </div>
+
               <div>
                 <label htmlFor="message" className="mb-2 block text-xs uppercase tracking-[0.14em] text-faint">
                   Message
@@ -151,6 +204,23 @@ export function Contact() {
       </div>
     </section>
   );
+}
+
+/** localStorage throws outright in some private modes, so both are wrapped. */
+function readStorage(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeStorage(key: string, value: string) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    /* the cooldown is a courtesy, not a guarantee */
+  }
 }
 
 function Field({

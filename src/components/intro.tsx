@@ -8,17 +8,30 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
  * lifts away to reveal the hero. Deliberately under a second — long enough to
  * feel deliberate, short enough that it never becomes a toll booth.
  */
+const SEEN_KEY = "intro-seen";
+
 export function Intro() {
   const reduced = useReducedMotion();
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    if (reduced) {
+    // The layout that renders this remounts on every full page load, so
+    // without a session flag someone arriving on /work from a search result
+    // would sit through the curtain again, and so would anyone who refreshed.
+    let seen = false;
+    try {
+      seen = sessionStorage.getItem(SEEN_KEY) === "1";
+      sessionStorage.setItem(SEEN_KEY, "1");
+    } catch {
+      /* private mode or storage disabled — treat it as a first visit */
+    }
+
+    if (reduced || seen) {
       setDone(true);
       return;
     }
     document.body.style.overflow = "hidden";
-    const t = setTimeout(() => setDone(true), 1250);
+    const t = setTimeout(() => setDone(true), 600);
     return () => {
       clearTimeout(t);
       document.body.style.overflow = "";
@@ -35,6 +48,10 @@ export function Intro() {
     <AnimatePresence>
       {!done && (
         <motion.div
+          // Server-rendered before the effect above can dismiss it, so without
+          // JavaScript this curtain would stay up for good. The `<noscript>`
+          // rule in the root layout hides it.
+          data-curtain=""
           className="fixed inset-0 z-[200] flex items-center justify-center bg-ink"
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}

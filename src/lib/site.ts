@@ -6,6 +6,12 @@ export const site = {
     "I ship products. Mobile, web, and the backend underneath.",
   intro:
     "Seven years of it, mostly fintech and payments, for teams in the US, UK and Saudi Arabia. These days I split my time between a marketplace in Ghana and grading coding agents for an AI lab. The second one has quietly changed how I do the first.",
+  /**
+   * Standalone version of the intro for share cards and search snippets, where
+   * the tagline above it isn't there to give "Seven years of it" an antecedent.
+   */
+  share:
+    "Principal software engineer with seven years in fintech and payments, building mobile, web and the backend underneath for teams in the US, UK and Saudi Arabia. Currently a B2B marketplace in Ghana, and evaluating coding agents for an AI lab.",
   email: "shehryarraza320@gmail.com",
   phone: "+92 322 8409425",
   github: "https://github.com/RazaShehryar",
@@ -20,11 +26,16 @@ export const site = {
   location: "Remote",
 } as const;
 
+/**
+ * Four numbers that have to stand on their own: they sit above the fold with
+ * no surrounding paragraph, so a percentage with no subject ("40% faster")
+ * reads as a claim about nothing. Each label names what the figure is of.
+ */
 export const stats = [
   { value: "7+", label: "Years shipping" },
-  { value: "40%", label: "Faster delivery cycles" },
-  { value: "30%", label: "Faster API responses" },
   { value: "4", label: "Apps live on the stores" },
+  { value: "19", label: "Products shipped" },
+  { value: "155k+", label: "Reviews on urpay" },
 ] as const;
 
 /**

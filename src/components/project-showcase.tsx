@@ -132,18 +132,20 @@ export function ProjectShowcase({ project, index }: { project: Project; index: n
               {project.description}
             </p>
 
-            <ul className="mb-7 space-y-2.5">
-              {project.highlights.map((h) => (
-                <li key={h} className="flex gap-3 text-sm leading-relaxed text-muted">
-                  <span
-                    aria-hidden
-                    className="mt-[0.45rem] h-1 w-1 shrink-0 rounded-full"
-                    style={{ background: project.accent }}
-                  />
-                  <span>{h}</span>
-                </li>
-              ))}
-            </ul>
+            {project.highlights && (
+              <ul className="mb-7 space-y-2.5">
+                {project.highlights.map((h) => (
+                  <li key={h} className="flex gap-3 text-sm leading-relaxed text-muted">
+                    <span
+                      aria-hidden
+                      className="mt-[0.45rem] h-1 w-1 shrink-0 rounded-full"
+                      style={{ background: project.accent }}
+                    />
+                    <span>{h}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
 
             <div className="mb-7 flex flex-wrap gap-1.5">
               {project.stack.map((t) => (

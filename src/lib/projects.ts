@@ -49,7 +49,8 @@ export type Project = {
   preview?: string;
   links: { label: string; href: string }[];
   stack: string[];
-  highlights: string[];
+  /** Omit where the stack alone says enough. */
+  highlights?: string[];
   /** Optional in-browser app preview (device simulator or screenshot gallery). */
   appPreview?: AppPreview;
   shots: Shot[];
@@ -131,12 +132,6 @@ export const featured: Project[] = [
       "OpenAI",
       "Nx",
     ],
-    highlights: [
-      "Live on iOS at 4.0.4 and on Google Play, still shipping through 2026.",
-      "Matchmaking runs on OpenAI embeddings over a Postgres vector store.",
-      "Pulled six separate repositories into one Nx workspace, which I should have done a year earlier.",
-      "Escrow through Paystack, secrets handled by KMS on App Engine.",
-    ],
     // Real app screens straight from the store listing — clean enough to run
     // inside the device frame.
     appPreview: {
@@ -176,11 +171,6 @@ export const featured: Project[] = [
       },
     ],
     stack: ["React Native", "TypeScript", "Blockchain", "Firebase"],
-    highlights: [
-      "On both stores at 4.3.0, last updated in 2026.",
-      "4.2 stars, though only 31 people bothered to rate it.",
-      "Built with a distributed team across several years of releases.",
-    ],
     // App screens cropped out of the store's marketing frames; the device
     // bezel covers the last of the gradient edge.
     appPreview: {

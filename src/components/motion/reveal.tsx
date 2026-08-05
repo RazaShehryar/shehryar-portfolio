@@ -22,6 +22,10 @@ export function Reveal({ children, delay = 0, y = 28, className }: Props) {
   return (
     <motion.div
       className={className}
+      // Marks the element for the `<noscript>` override in the root layout:
+      // without JavaScript the inline `opacity: 0` below never gets animated
+      // away, and the page would render blank.
+      data-reveal=""
       initial={{ opacity: 0, y: reduced ? 0 : y }}
       whileInView={{ opacity: 1, y: 0 }}
       // A visibility threshold rather than a negative margin: a negative
@@ -57,6 +61,7 @@ export function RevealWords({
         <span key={`${word}-${i}`} className="inline-block overflow-hidden align-bottom">
           <motion.span
             className="inline-block"
+            data-reveal=""
             initial={{ y: reduced ? 0 : "100%", opacity: reduced ? 0 : 1 }}
             whileInView={{ y: 0, opacity: 1 }}
             viewport={{ once: true }}

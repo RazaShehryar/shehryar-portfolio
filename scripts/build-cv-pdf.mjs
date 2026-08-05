@@ -7,6 +7,9 @@
  * phone and profile URLs. The previous CV was a Pages export and had none of
  * the last of those — zero /URI entries in the whole file.
  *
+ * Prints /cv/print rather than /cv. The two are the same document; only the
+ * print route includes the phone number, which is kept out of the public HTML.
+ *
  * Usage (with the dev server or a production build already serving):
  *   node scripts/build-cv-pdf.mjs [url]
  */
@@ -28,7 +31,8 @@ if (!chrome) {
   process.exit(1);
 }
 
-const url = process.argv[2] ?? "http://localhost:3000/cv";
+// `/cv/print`, not `/cv`: the print route is the one carrying the phone number.
+const url = process.argv[2] ?? "http://localhost:3000/cv/print";
 const out = resolve(process.cwd(), "public/Shehryar_Raza_Resume.pdf");
 
 console.log(`Printing ${url} -> ${out}`);

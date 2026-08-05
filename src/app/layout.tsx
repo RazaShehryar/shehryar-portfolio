@@ -43,13 +43,15 @@ export const metadata: Metadata = {
     url: site.domain,
     siteName: site.name,
     title: `${site.name} — ${site.role}`,
-    description: site.intro,
+    // Not `site.intro`: that paragraph opens with "Seven years of it", which
+    // reads as a fragment once a share card strips away the line above it.
+    description: site.share,
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
     title: `${site.name} — ${site.role}`,
-    description: site.intro,
+    description: site.share,
   },
   robots: {
     index: true,
@@ -112,6 +114,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-scroll-behavior="smooth" className={inter.variable}>
+      <head>
+        {/*
+          Scroll-triggered content is server-rendered with an inline
+          `opacity: 0` that only JavaScript clears, and the intro curtain is
+          server-rendered covering the page. With scripts blocked or broken,
+          both of those leave a blank screen — these rules undo them.
+        */}
+        <noscript>
+          <style>{`[data-reveal]{opacity:1!important;transform:none!important}[data-curtain]{display:none!important}`}</style>
+        </noscript>
+      </head>
       <body className="grain antialiased">
         <script
           type="application/ld+json"
