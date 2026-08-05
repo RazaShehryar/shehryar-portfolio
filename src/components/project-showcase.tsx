@@ -10,10 +10,11 @@ import {
   useReducedMotion,
   type MotionValue,
 } from "motion/react";
-import { ArrowUpRight, MousePointerClick } from "lucide-react";
+import { ArrowUpRight, MousePointerClick, Smartphone } from "lucide-react";
 import type { Project } from "@/lib/projects";
 import { BrowserFrame, PhoneFrame } from "@/components/frames";
 import { SitePreview } from "@/components/site-preview";
+import { AppSimulator } from "@/components/app-simulator";
 import { useProjectViews } from "@/lib/use-views";
 import { outboundClicked, previewOpened } from "@/lib/track-event";
 
@@ -32,6 +33,7 @@ export function ProjectShowcase({ project, index }: { project: Project; index: n
   // visibility check that decides whether this project counts as viewed.
   const { views, ref: viewRef } = useProjectViews(project.slug);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [simOpen, setSimOpen] = useState(false);
 
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -185,6 +187,21 @@ export function ProjectShowcase({ project, index }: { project: Project; index: n
                   </a>
                 )
               )}
+              {project.appPreview && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    previewOpened(`${project.slug}_sim`);
+                    setSimOpen(true);
+                  }}
+                  className="group inline-flex items-center gap-2 rounded-full border border-line bg-white/[0.03] px-4 py-2 text-sm transition-colors hover:border-accent/60 hover:text-accent"
+                >
+                  <Smartphone className="h-3.5 w-3.5" />
+                  {project.appPreview.mode === "device"
+                    ? "Preview on simulator"
+                    : "Preview app screens"}
+                </button>
+              )}
               {project.links.map((l) => (
                 <a
                   key={l.href}
@@ -271,6 +288,15 @@ export function ProjectShowcase({ project, index }: { project: Project; index: n
           name={project.name}
           open={previewOpen}
           onClose={() => setPreviewOpen(false)}
+        />
+      )}
+
+      {project.appPreview && (
+        <AppSimulator
+          preview={project.appPreview}
+          name={project.name}
+          open={simOpen}
+          onClose={() => setSimOpen(false)}
         />
       )}
     </section>

@@ -5,6 +5,31 @@ export type Shot = {
   frame: "browser" | "phone";
 };
 
+export type AppScreen = { src: string; alt: string };
+
+/**
+ * Drives the "Preview on simulator" modal.
+ *
+ * `device` renders the screens inside an interactive iPhone frame you tap and
+ * swipe through — used where clean, full-bleed app screens exist. `gallery`
+ * lays the screens out flat, App Store style, for apps whose only artwork is
+ * marketing compositions that can't be reframed (e.g. angled phones).
+ */
+export type AppPreview = {
+  mode: "device" | "gallery";
+  screens: AppScreen[];
+  appStore?: string;
+  googlePlay?: string;
+  /** One honest line about what the visitor is looking at. */
+  note?: string;
+  /**
+   * Reserved for a future live Appetize.io embed. This is the per-app public
+   * key (safe to expose in the browser), NOT the account API token, which
+   * stays server-side. Absent until a build is uploaded.
+   */
+  appetizePublicKey?: string;
+};
+
 export type Project = {
   slug: string;
   name: string;
@@ -25,6 +50,8 @@ export type Project = {
   links: { label: string; href: string }[];
   stack: string[];
   highlights: string[];
+  /** Optional in-browser app preview (device simulator or screenshot gallery). */
+  appPreview?: AppPreview;
   shots: Shot[];
 };
 
@@ -52,6 +79,22 @@ export const featured: Project[] = [
       "Sends money to over 140 countries through MoneyGram, Ria and Tahweel Al Rajhi.",
       "Top-ups from bank cards, Apple Pay, Samsung Pay or a transfer.",
     ],
+    // Gallery, not a device frame: urpay's only public artwork is the App
+    // Store's marketing shots (angled phones), and it's a bank-owned app, so
+    // these are shown as-is with a link to the real thing.
+    appPreview: {
+      mode: "gallery",
+      appStore: "https://apps.apple.com/us/app/urpay/id1585778338",
+      note: "App Store preview. Open the App Store for the live wallet.",
+      screens: [
+        { src: "/projects/sim/urpay-1.webp", alt: "urpay — higher limits" },
+        { src: "/projects/sim/urpay-2.webp", alt: "urpay — connecting you" },
+        { src: "/projects/sim/urpay-3.webp", alt: "urpay — send to the world" },
+        { src: "/projects/sim/urpay-4.webp", alt: "urpay — all-in-one services" },
+        { src: "/projects/sim/urpay-5.webp", alt: "urpay — a variety of cards" },
+        { src: "/projects/sim/urpay-6.webp", alt: "urpay — breaking language barriers" },
+      ],
+    },
     shots: [{ src: "/projects/urpay-web.webp", alt: "urpay digital wallet", frame: "browser" }],
   },
   {
@@ -94,6 +137,19 @@ export const featured: Project[] = [
       "Pulled six separate repositories into one Nx workspace, which I should have done a year earlier.",
       "Escrow through Paystack, secrets handled by KMS on App Engine.",
     ],
+    // Real app screens straight from the store listing — clean enough to run
+    // inside the device frame.
+    appPreview: {
+      mode: "device",
+      appStore: "https://apps.apple.com/us/app/makolahub/id6745556298",
+      googlePlay: "https://play.google.com/store/apps/details?id=com.makolahub.makolahub",
+      screens: [
+        { src: "/projects/sim/makolahub-1.webp", alt: "MakolaHub — product marketplace feed" },
+        { src: "/projects/sim/makolahub-2.webp", alt: "MakolaHub — browsing product listings" },
+        { src: "/projects/sim/makolahub-3.webp", alt: "MakolaHub — messaging a seller" },
+        { src: "/projects/sim/makolahub-4.webp", alt: "MakolaHub — escrow checkout and payment" },
+      ],
+    },
     shots: [
       { src: "/projects/makolahub-web.webp", alt: "MakolaHub marketplace homepage", frame: "browser" },
       { src: "/projects/makolahub-products.webp", alt: "MakolaHub product listings", frame: "browser" },
@@ -125,6 +181,20 @@ export const featured: Project[] = [
       "4.2 stars, though only 31 people bothered to rate it.",
       "Built with a distributed team across several years of releases.",
     ],
+    // App screens cropped out of the store's marketing frames; the device
+    // bezel covers the last of the gradient edge.
+    appPreview: {
+      mode: "device",
+      appStore: "https://apps.apple.com/us/app/votly/id1598662251",
+      googlePlay: "https://play.google.com/store/apps/details?id=com.theblockchainlabs.votly",
+      screens: [
+        { src: "/projects/sim/votly-1.webp", alt: "Votly — community feed" },
+        { src: "/projects/sim/votly-2.webp", alt: "Votly — profile and levels" },
+        { src: "/projects/sim/votly-3.webp", alt: "Votly — create your own poll" },
+        { src: "/projects/sim/votly-4.webp", alt: "Votly — acquire and blaze polls" },
+        { src: "/projects/sim/votly-5.webp", alt: "Votly — vote and interact" },
+      ],
+    },
     shots: [
       { src: "/projects/votly-0.webp", alt: "Votly feed", frame: "phone" },
       { src: "/projects/votly-1.webp", alt: "Votly poll detail", frame: "phone" },
