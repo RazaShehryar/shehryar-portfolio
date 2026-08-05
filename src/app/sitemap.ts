@@ -5,6 +5,7 @@ const ROUTES = [
   { path: "", priority: 1 },
   { path: "/projects", priority: 0.9 },
   { path: "/work", priority: 0.8 },
+  { path: "/cv", priority: 0.8 },
   { path: "/timeline", priority: 0.6 },
   { path: "/skills", priority: 0.6 },
   { path: "/contact", priority: 0.7 },

@@ -10,7 +10,13 @@ export const site = {
   phone: "+92 322 8409425",
   github: "https://github.com/RazaShehryar",
   linkedin: "https://www.linkedin.com/in/shehryarraza/",
-  cv: "/shehryar-raza-cv.pdf",
+  /**
+   * Filename carries the name and the word "Resume" because recruiters search
+   * their downloads folder for exactly that. Generated from /cv by
+   * `scripts/build-cv-pdf.mjs` — do not hand-edit the PDF.
+   */
+  cv: "/Shehryar_Raza_Resume.pdf",
+  cvPage: "/cv",
   location: "Remote",
 } as const;
 
