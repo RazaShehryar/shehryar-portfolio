@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { doc, getDoc, increment, setDoc } from "firebase/firestore";
-import { getDb } from "@/lib/firebase";
+import { loadFirestore } from "@/lib/firebase";
 import { dayKey } from "@/lib/analytics";
 
 /** Slugs this tab has already counted, so scrolling back is free. */
@@ -21,9 +20,6 @@ export function useProjectViews(slug: string) {
   const ref = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    const db = getDb();
-    if (!db) return;
-
     let cancelled = false;
     let dwell: number | undefined;
 
@@ -32,13 +28,15 @@ export function useProjectViews(slug: string) {
       counted.add(slug);
       const today = dayKey(new Date());
       try {
-        await setDoc(doc(db, "views", slug), { count: increment(1) }, { merge: true });
-        await setDoc(
-          doc(db, "projectStats", today),
-          { projects: { [slug]: increment(1) } },
+        const fs = await loadFirestore();
+        if (!fs || cancelled) return;
+        await fs.setDoc(fs.doc(fs.db, "views", slug), { count: fs.increment(1) }, { merge: true });
+        await fs.setDoc(
+          fs.doc(fs.db, "projectStats", today),
+          { projects: { [slug]: fs.increment(1) } },
           { merge: true },
         );
-        const snap = await getDoc(doc(db, "views", slug));
+        const snap = await fs.getDoc(fs.doc(fs.db, "views", slug));
         if (!cancelled && snap.exists()) setViews(snap.data().count ?? 0);
       } catch {
         /* never surface analytics failures to a reader */
@@ -47,7 +45,9 @@ export function useProjectViews(slug: string) {
 
     const readOnly = async () => {
       try {
-        const snap = await getDoc(doc(db, "views", slug));
+        const fs = await loadFirestore();
+        if (!fs || cancelled) return;
+        const snap = await fs.getDoc(fs.doc(fs.db, "views", slug));
         if (!cancelled && snap.exists()) setViews(snap.data().count ?? 0);
       } catch {
         /* ignore */

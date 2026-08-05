@@ -1,7 +1,6 @@
 "use client";
 
-import { doc, increment, setDoc } from "firebase/firestore";
-import { getDb } from "@/lib/firebase";
+import { loadFirestore } from "@/lib/firebase";
 import { dayKey } from "@/lib/analytics";
 
 /** Keys are stored raw, so keep them to a safe, predictable shape. */
@@ -17,14 +16,18 @@ export function trackEvent(name: string) {
   if (!SAFE.test(name)) return;
   if (typeof navigator !== "undefined" && navigator.doNotTrack === "1") return;
 
-  const db = getDb();
-  if (!db) return;
+  const day = dayKey(new Date());
 
-  void setDoc(
-    doc(db, "events", dayKey(new Date())),
-    { e: { [name]: increment(1) } },
-    { merge: true },
-  ).catch(() => {});
+  void loadFirestore()
+    .then((fs) => {
+      if (!fs) return;
+      return fs.setDoc(
+        fs.doc(fs.db, "events", day),
+        { e: { [name]: fs.increment(1) } },
+        { merge: true },
+      );
+    })
+    .catch(() => {});
 }
 
 /** Convenience for the project-scoped events, keeping key shapes consistent. */

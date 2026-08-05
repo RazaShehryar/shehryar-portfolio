@@ -1,7 +1,6 @@
 "use client";
 
-import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
-import { getFirestore, type Firestore } from "firebase/firestore";
+import type { Firestore } from "firebase/firestore";
 
 /**
  * Firebase web config is public by design — it identifies the project rather
@@ -19,19 +18,40 @@ const config = {
 
 export const firebaseReady = Boolean(config.apiKey && config.projectId);
 
-let app: FirebaseApp | null = null;
-let db: Firestore | null = null;
+/** The Firestore module plus a live handle, so callers need one import. */
+export type FirestoreApi = typeof import("firebase/firestore") & { db: Firestore };
+
+let pending: Promise<FirestoreApi | null> | null = null;
 
 /**
- * Returns the Firestore handle, creating it on first use.
- * Returns null when the project is not configured so the UI can degrade
- * instead of throwing during a build or preview without env vars.
+ * Loads the Firestore SDK on demand and returns it with a ready handle.
+ *
+ * Nothing here imports `firebase/*` at the top level, and that is the point:
+ * a static import anywhere in the public page graph put 568KB — 173KB over the
+ * wire — into the initial bundle of every route. Every use of Firestore on the
+ * public site is either analytics or a form submission, none of which is needed
+ * for first paint, so it now arrives in its own chunk once the page is up.
+ *
+ * Resolves to null when the project is not configured, so callers degrade
+ * instead of throwing during a build or a preview without env vars.
  */
-export function getDb(): Firestore | null {
-  if (!firebaseReady) return null;
-  if (!db) {
-    app = getApps().length ? getApp() : initializeApp(config);
-    db = getFirestore(app);
-  }
-  return db;
+export function loadFirestore(): Promise<FirestoreApi | null> {
+  if (!firebaseReady) return Promise.resolve(null);
+
+  pending ??= (async () => {
+    try {
+      const [app, firestore] = await Promise.all([
+        import("firebase/app"),
+        import("firebase/firestore"),
+      ]);
+      const instance = app.getApps().length ? app.getApp() : app.initializeApp(config);
+      return { ...firestore, db: firestore.getFirestore(instance) };
+    } catch {
+      // Let a later call retry rather than caching the failure forever.
+      pending = null;
+      return null;
+    }
+  })();
+
+  return pending;
 }

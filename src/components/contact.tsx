@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { addDoc, collection, doc, increment, serverTimestamp, setDoc } from "firebase/firestore";
 import { dayKey } from "@/lib/analytics";
 import { trackEvent } from "@/lib/track-event";
 import { Check, Loader2, Mail } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/icons";
-import { getDb } from "@/lib/firebase";
+import { loadFirestore } from "@/lib/firebase";
 import { site } from "@/lib/site";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionHeading } from "@/components/section-heading";
@@ -71,26 +70,28 @@ export function Contact() {
     if (!EMAIL.test(email) || email.length > 200) return fail("That email doesn't look right.");
     if (!message || message.length > 4000) return fail("Please write a short message.");
 
-    const db = getDb();
-    if (!db) return fail("The form isn't available right now — email me instead.");
-
     setState("sending");
     setError(null);
 
     try {
-      await addDoc(collection(db, "contacts"), {
+      // Loaded here rather than on mount: someone who reads the page and never
+      // writes should not pay for the SDK.
+      const fs = await loadFirestore();
+      if (!fs) return fail("The form isn't available right now — email me instead.");
+
+      await fs.addDoc(fs.collection(fs.db, "contacts"), {
         name,
         email,
         message,
-        createdAt: serverTimestamp(),
+        createdAt: fs.serverTimestamp(),
       });
 
       // Bump the day's enquiry counter for the nightly report. A failure here
       // must not make a delivered message look like it failed.
       try {
-        await setDoc(
-          doc(db, "contactStats", dayKey(new Date())),
-          { count: increment(1) },
+        await fs.setDoc(
+          fs.doc(fs.db, "contactStats", dayKey(new Date())),
+          { count: fs.increment(1) },
           { merge: true },
         );
       } catch {

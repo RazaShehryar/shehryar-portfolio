@@ -1,15 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  collection,
-  getDocs,
-  limit,
-  orderBy,
-  query,
-  Timestamp,
-} from "firebase/firestore";
-import { getDb } from "@/lib/firebase";
+import { Timestamp } from "firebase/firestore";
+import { loadFirestore } from "@/lib/firebase";
 import {
   DWELL_LABELS,
   EVENT_LABELS,
@@ -79,14 +72,16 @@ export function Dashboard() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const db = getDb();
-    if (!db) return;
     let cancelled = false;
 
     (async () => {
       setLoading(true);
       setError(null);
       try {
+        const fs = await loadFirestore();
+        if (!fs || cancelled) return;
+        const { db, collection, getDocs, limit, orderBy, query } = fs;
+
         const days = lastNDays(range);
         const inWindow = new Set(days);
 

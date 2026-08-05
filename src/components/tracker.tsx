@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { doc, increment, setDoc } from "firebase/firestore";
-import { getDb } from "@/lib/firebase";
+import { loadFirestore, type FirestoreApi } from "@/lib/firebase";
 import { DWELL_MARKS, dayKey, hourKey, parseClient, resolveSource } from "@/lib/analytics";
 
 const LOCAL_DAY_KEY = "srz_last_day";
@@ -42,13 +41,15 @@ function readCookie(name: string): string | null {
  */
 export function Tracker() {
   useEffect(() => {
-    const db = getDb();
-    if (!db) return;
     if (typeof navigator !== "undefined" && navigator.doNotTrack === "1") return;
 
     const now = new Date();
     const today = dayKey(now);
     let cancelled = false;
+
+    // Held once the SDK has loaded, so the scroll and dwell handlers below can
+    // use it without each awaiting their own copy.
+    let fsRef: FirestoreApi | null = null;
 
     /**
      * Claims today's marker for this visitor.
@@ -58,14 +59,14 @@ export function Tracker() {
      * means someone has already been counted — no read required, which keeps
      * the documents unreadable while still answering the question.
      */
-    const claimUnique = async (visitorId: string | null): Promise<boolean> => {
+    const claimUnique = async (fs: FirestoreApi, visitorId: string | null): Promise<boolean> => {
       if (!visitorId) {
         const seen = localStorage.getItem(LOCAL_DAY_KEY) === today;
         if (!seen) localStorage.setItem(LOCAL_DAY_KEY, today);
         return !seen;
       }
       try {
-        await setDoc(doc(db, "visitorDays", `${today}__${visitorId}`), { t: 1 });
+        await fs.setDoc(fs.doc(fs.db, "visitorDays", `${today}__${visitorId}`), { t: 1 });
         return true;
       } catch {
         return false;
@@ -80,10 +81,14 @@ export function Tracker() {
           params.get("utm_source") ?? params.get("ref"),
         );
 
+        const fs = await loadFirestore();
+        if (!fs || cancelled) return;
+        fsRef = fs;
+
         const visitorId = await getVisitorId();
         if (cancelled) return;
 
-        const isNewToday = await claimUnique(visitorId);
+        const isNewToday = await claimUnique(fs, visitorId);
         if (cancelled) return;
 
         // Returning is tracked separately from unique-today: someone can be a
@@ -95,19 +100,19 @@ export function Tracker() {
         const country = readCookie("geo");
         const lang = (navigator.language || "").split("-")[0].slice(0, 5) || "unknown";
 
-        await setDoc(
-          doc(db, "stats", today),
+        await fs.setDoc(
+          fs.doc(fs.db, "stats", today),
           {
-            views: increment(1),
-            ...(isNewToday ? { uniques: increment(1) } : {}),
-            sources: { [source]: increment(1) },
-            devices: { [device]: increment(1) },
-            browsers: { [browser]: increment(1) },
-            os: { [os]: increment(1) },
-            hours: { [`h${hourKey(now)}`]: increment(1) },
-            langs: { [lang]: increment(1) },
-            visitorType: { [everSeen ? "returning" : "new"]: increment(1) },
-            ...(country ? { countries: { [country]: increment(1) } } : {}),
+            views: fs.increment(1),
+            ...(isNewToday ? { uniques: fs.increment(1) } : {}),
+            sources: { [source]: fs.increment(1) },
+            devices: { [device]: fs.increment(1) },
+            browsers: { [browser]: fs.increment(1) },
+            os: { [os]: fs.increment(1) },
+            hours: { [`h${hourKey(now)}`]: fs.increment(1) },
+            langs: { [lang]: fs.increment(1) },
+            visitorType: { [everSeen ? "returning" : "new"]: fs.increment(1) },
+            ...(country ? { countries: { [country]: fs.increment(1) } } : {}),
           },
           { merge: true },
         );
@@ -122,6 +127,11 @@ export function Tracker() {
     // up and down cannot inflate it.
     const reached = new Set<number>();
     const onScroll = () => {
+      // Before the SDK lands, depth marks are simply not recorded rather than
+      // queued: a reader who leaves in the first second is not a data point
+      // worth holding an import open for.
+      if (!fsRef) return;
+      const fs = fsRef;
       const scrollable =
         document.documentElement.scrollHeight - window.innerHeight;
       if (scrollable <= 0) return;
@@ -130,9 +140,9 @@ export function Tracker() {
       for (const mark of [25, 50, 75, 100]) {
         if (percent >= mark && !reached.has(mark)) {
           reached.add(mark);
-          void setDoc(
-            doc(db, "depthStats", today),
-            { depth: { [`d${mark}`]: increment(1) } },
+          void fs.setDoc(
+            fs.doc(fs.db, "depthStats", today),
+            { depth: { [`d${mark}`]: fs.increment(1) } },
             { merge: true },
           ).catch(() => {});
         }
@@ -145,9 +155,11 @@ export function Tracker() {
     // that actually arrives.
     const dwellTimers = DWELL_MARKS.map((mark) =>
       window.setTimeout(() => {
-        void setDoc(
-          doc(db, "engagement", today),
-          { dwell: { [`s${mark}`]: increment(1) } },
+        const fs = fsRef;
+        if (!fs) return;
+        void fs.setDoc(
+          fs.doc(fs.db, "engagement", today),
+          { dwell: { [`s${mark}`]: fs.increment(1) } },
           { merge: true },
         ).catch(() => {});
       }, mark * 1000),
