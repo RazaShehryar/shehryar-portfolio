@@ -30,8 +30,21 @@ export type AppPreview = {
   appetizePublicKey?: string;
 };
 
+/**
+ * Filter categories for the projects page.
+ *
+ * Set on each project by hand rather than inferred from its stack list: the
+ * stack says what something was built with, which is not the same question as
+ * what kind of work it was. A React Native wallet belongs under Fintech as
+ * much as under Mobile, and no amount of reading its dependencies says so.
+ */
+export const TAGS = ["Mobile", "Web", "Fintech", "AI", "Full-stack"] as const;
+
+export type Tag = (typeof TAGS)[number];
+
 export type Project = {
   slug: string;
+  tags: Tag[];
   name: string;
   blurb: string;
   description: string;
@@ -60,6 +73,7 @@ export type Project = {
 export const featured: Project[] = [
   {
     slug: "urpay",
+    tags: ["Mobile", "Fintech"],
     name: "urpay",
     blurb: "Moving real money, in Saudi Arabia",
     description:
@@ -100,6 +114,7 @@ export const featured: Project[] = [
   },
   {
     slug: "makolahub",
+    tags: ["Mobile", "Web", "Full-stack", "AI"],
     name: "MakolaHub",
     blurb: "Getting Ghanaian businesses online",
     description:
@@ -154,6 +169,7 @@ export const featured: Project[] = [
   },
   {
     slug: "votly",
+    tags: ["Mobile"],
     name: "Votly",
     blurb: "Still running, five years later",
     description:
@@ -194,6 +210,7 @@ export const featured: Project[] = [
   },
   {
     slug: "hera",
+    tags: ["Web", "Full-stack"],
     name: "Hera",
     blurb: "Running Amazon delivery fleets",
     description:
@@ -214,6 +231,7 @@ export const featured: Project[] = [
 
 export type WorkCard = {
   slug: string;
+  tags: Tag[];
   name: string;
   year: string;
   role: string;
@@ -237,6 +255,7 @@ export type WorkCard = {
 export const moreWork: WorkCard[] = [
   {
     slug: "securehire",
+    tags: ["Mobile", "Web", "Full-stack"],
     name: "SecureHire",
     year: "2023",
     role: "Full-stack engineer",
@@ -250,6 +269,7 @@ export const moreWork: WorkCard[] = [
   },
   {
     slug: "contango",
+    tags: ["Web"],
     name: "Contango",
     year: "2024",
     role: "Contracted engineer",
@@ -263,6 +283,7 @@ export const moreWork: WorkCard[] = [
   },
   {
     slug: "fluyo",
+    tags: ["Mobile"],
     name: "Fluyo",
     year: "2020 — 2021",
     role: "React Native developer",
@@ -280,6 +301,7 @@ export const moreWork: WorkCard[] = [
   },
   {
     slug: "central-pro",
+    tags: ["Web", "Full-stack"],
     name: "Central Pro Services",
     year: "2021 — 2023",
     role: "Frontend engineer",
@@ -293,6 +315,7 @@ export const moreWork: WorkCard[] = [
   },
   {
     slug: "apple-music-module",
+    tags: ["Mobile"],
     name: "Workout + Apple Music",
     year: "2024",
     role: "React Native & Swift",
@@ -308,6 +331,7 @@ export const moreWork: WorkCard[] = [
   },
   {
     slug: "duals",
+    tags: ["Mobile", "Full-stack"],
     name: "Duals",
     year: "2020 — 2023",
     role: "Lead engineer",
@@ -317,6 +341,7 @@ export const moreWork: WorkCard[] = [
   },
   {
     slug: "bite",
+    tags: ["Mobile"],
     name: "Bite",
     year: "2021 — 2022",
     role: "Mobile engineer",
@@ -327,6 +352,7 @@ export const moreWork: WorkCard[] = [
   },
   {
     slug: "toksave",
+    tags: ["Mobile"],
     name: "TokSave",
     year: "2020 — 2022",
     role: "Sole engineer",
@@ -337,6 +363,7 @@ export const moreWork: WorkCard[] = [
   },
   {
     slug: "legacy-memoirs",
+    tags: ["Mobile"],
     name: "Legacy Memoirs",
     year: "2022 — 2023",
     role: "Lead mobile engineer",
@@ -349,6 +376,7 @@ export const moreWork: WorkCard[] = [
   },
   {
     slug: "smaplr",
+    tags: ["Web"],
     name: "SMAPLR",
     year: "2022 — 2025",
     role: "Frontend engineer, React",
@@ -359,6 +387,7 @@ export const moreWork: WorkCard[] = [
   },
   {
     slug: "early-friday",
+    tags: ["Web"],
     name: "Early Friday",
     year: "2022",
     role: "Frontend engineer, React",
@@ -369,6 +398,7 @@ export const moreWork: WorkCard[] = [
   },
   {
     slug: "seven-invites",
+    tags: ["Web", "Fintech", "Full-stack"],
     name: "Seven Invites",
     year: "2021 — 2022",
     role: "Senior software engineer",
@@ -379,6 +409,7 @@ export const moreWork: WorkCard[] = [
   },
   {
     slug: "srvhub",
+    tags: ["Mobile"],
     name: "SrvHub & SrvHub Pro",
     year: "2021",
     role: "Mobile engineer",
@@ -390,6 +421,7 @@ export const moreWork: WorkCard[] = [
   },
   {
     slug: "bensboat",
+    tags: ["Mobile"],
     name: "BensBoat English",
     year: "2021 — 2022",
     role: "Sole engineer",
@@ -401,6 +433,7 @@ export const moreWork: WorkCard[] = [
   },
   {
     slug: "pikkett",
+    tags: ["Mobile"],
     name: "Pikkitt",
     year: "2021",
     role: "Sole engineer",

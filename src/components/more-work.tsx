@@ -9,9 +9,16 @@ import { Spotlight } from "@/components/motion/spotlight";
 import { PhoneFrame } from "@/components/frames";
 import { SitePreview } from "@/components/site-preview";
 import { outboundClicked, previewOpened } from "@/lib/track-event";
+import { useProjectViews } from "@/lib/use-views";
 import { SectionHeading } from "@/components/section-heading";
 
-export function MoreWork() {
+export function MoreWork({
+  cards = moreWork,
+  filtered = false,
+}: {
+  cards?: WorkCard[];
+  filtered?: boolean;
+} = {}) {
   return (
     <section id="more-work" className="relative mx-auto max-w-7xl px-6 py-28 sm:py-36">
       <SectionHeading
@@ -20,24 +27,36 @@ export function MoreWork() {
         lead="Client work going back to 2021. Some of these are old enough that no screenshots survived, so you get the app icon instead of a mockup I made up."
       />
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {moreWork.map((card, i) => (
-          <Reveal key={card.slug} delay={(i % 3) * 0.07}>
-            <Card card={card} />
-          </Reveal>
-        ))}
-      </div>
+      {cards.length === 0 ? (
+        <p className="text-muted">
+          Nothing here matches that filter. Clear it to see all nineteen.
+        </p>
+      ) : (
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {cards.map((card, i) => (
+            // Keying on the filter as well as the slug remounts the cards when
+            // the set changes, so the reveal replays for whatever is new
+            // instead of the grid silently swapping underneath.
+            <Reveal key={`${card.slug}-${filtered}`} delay={(i % 3) * 0.07}>
+              <Card card={card} />
+            </Reveal>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
 
 function Card({ card }: { card: WorkCard }) {
   const [previewOpen, setPreviewOpen] = useState(false);
+  // Counts a card as seen once it has held the viewport for a moment, and
+  // reads back the running total.
+  const { views, ref: viewRef } = useProjectViews(card.slug);
 
   return (
     <>
       <Spotlight className="h-full overflow-hidden rounded-2xl border border-line bg-white/[0.02]">
-        <div className="flex h-full flex-col">
+        <div ref={viewRef as React.Ref<HTMLDivElement>} className="flex h-full flex-col">
           {/* Visual */}
           <div
             className="relative aspect-[16/10] overflow-hidden border-b border-line"
@@ -95,6 +114,11 @@ function Card({ card }: { card: WorkCard }) {
             <div className="mb-1.5 flex items-baseline gap-3">
               <h3 className="font-semibold tracking-tight">{card.name}</h3>
               <span className="font-mono text-[0.7rem] text-faint">{card.year}</span>
+              {views !== null && (
+                <span className="ml-auto font-mono text-[0.7rem] text-faint">
+                  {views.toLocaleString()} {views === 1 ? "view" : "views"}
+                </span>
+              )}
             </div>
             <p className="mb-3 text-xs uppercase tracking-[0.12em]" style={{ color: card.accent }}>
               {card.role}

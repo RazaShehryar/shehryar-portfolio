@@ -158,6 +158,63 @@ export function ProjectShowcase({ project, index }: { project: Project; index: n
               ))}
             </div>
 
+            {/* The simulator is the most interesting thing on this page and it
+                was hiding behind a text button that read like a footnote. Real
+                screens, at a size you can see, are the invitation. */}
+            {project.appPreview && (
+              <button
+                type="button"
+                onClick={() => {
+                  previewOpened(`${project.slug}_sim`);
+                  setSimOpen(true);
+                }}
+                aria-label={
+                  project.appPreview.mode === "device"
+                    ? `Open ${project.name} on a simulator`
+                    : `See ${project.name} app screens`
+                }
+                className="group/sim mb-7 flex w-full items-center gap-4 rounded-2xl border border-line bg-white/[0.02] p-3 text-left transition-colors hover:border-accent/50 hover:bg-white/[0.04]"
+              >
+                <span className="flex shrink-0 items-center">
+                  {project.appPreview.screens.slice(0, 4).map((s, i) => (
+                    <span
+                      key={s.src}
+                      className="relative block h-[4.5rem] w-10 overflow-hidden rounded-md border border-white/15 bg-ink shadow-lg transition-transform duration-300 group-hover/sim:translate-y-[-2px]"
+                      style={{
+                        marginLeft: i === 0 ? 0 : "-0.85rem",
+                        zIndex: 4 - i,
+                        // Each screen behind the last leans back a touch, so the
+                        // strip reads as a deck to flick through.
+                        transform: `rotate(${(i - 1.5) * 3}deg)`,
+                        transitionDelay: `${i * 40}ms`,
+                      }}
+                    >
+                      <Image
+                        src={s.src}
+                        alt=""
+                        fill
+                        sizes="40px"
+                        className="object-cover object-top"
+                      />
+                    </span>
+                  ))}
+                </span>
+                <span className="min-w-0">
+                  <span className="flex items-center gap-1.5 text-sm font-medium text-fg">
+                    <Smartphone className="h-3.5 w-3.5 text-accent" />
+                    {project.appPreview.mode === "device"
+                      ? "Try it on a simulator"
+                      : "See the app screens"}
+                  </span>
+                  <span className="mt-0.5 block text-xs text-faint">
+                    {project.appPreview.mode === "device"
+                      ? `Tap and swipe through ${project.appPreview.screens.length} real screens`
+                      : `${project.appPreview.screens.length} screens from the store listing`}
+                  </span>
+                </span>
+              </button>
+            )}
+
             <div className="flex flex-wrap items-center gap-3">
               {project.preview ? (
                 <button
@@ -188,21 +245,6 @@ export function ProjectShowcase({ project, index }: { project: Project; index: n
                     <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </a>
                 )
-              )}
-              {project.appPreview && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    previewOpened(`${project.slug}_sim`);
-                    setSimOpen(true);
-                  }}
-                  className="group inline-flex items-center gap-2 rounded-full border border-line bg-white/[0.03] px-4 py-2 text-sm transition-colors hover:border-accent/60 hover:text-accent"
-                >
-                  <Smartphone className="h-3.5 w-3.5" />
-                  {project.appPreview.mode === "device"
-                    ? "Preview on simulator"
-                    : "Preview app screens"}
-                </button>
               )}
               {project.links.map((l) => (
                 <a

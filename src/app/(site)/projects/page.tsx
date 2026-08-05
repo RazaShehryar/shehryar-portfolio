@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Projects } from "@/components/projects";
-import { MoreWork } from "@/components/more-work";
+import { ProjectFilter } from "@/components/project-filter";
 
 export const metadata: Metadata = {
   title: "Projects",
@@ -10,10 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function ProjectsPage() {
-  return (
-    <>
-      <Projects />
-      <MoreWork />
-    </>
-  );
+  return <ProjectFilter />;
 }
