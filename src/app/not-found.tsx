@@ -10,7 +10,6 @@ export const metadata: Metadata = {
 const LINKS = [
   { href: "/projects", label: "Projects" },
   { href: "/work", label: "Work" },
-  { href: "/cv", label: "CV" },
   { href: "/contact", label: "Contact" },
 ];
 

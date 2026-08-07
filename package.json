@@ -7,7 +7,6 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "cv:pdf": "node scripts/build-cv-pdf.mjs",
     "app:previews": "node scripts/build-app-previews.mjs"
   },
   "dependencies": {

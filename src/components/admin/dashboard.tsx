@@ -212,7 +212,7 @@ export function Dashboard() {
         {error && <span className="text-xs text-red-400">{error}</span>}
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Tile label="Visits" value={totalViews} />
         <Tile label="Unique" value={totalUniques} />
         <Tile
@@ -220,7 +220,6 @@ export function Dashboard() {
           value={engaged}
           hint={dwellTotal ? `${Math.round((engaged / dwellTotal) * 100)}% stayed` : undefined}
         />
-        <Tile label="CV opened" value={events.cv_download ?? 0} />
         <Tile label="Enquiries" value={messages.length} accent />
       </div>
 

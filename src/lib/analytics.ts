@@ -188,7 +188,6 @@ export const DWELL_LABELS: Record<string, string> = {
 
 /** Interaction events worth counting, keyed compactly for Firestore. */
 export const EVENT_LABELS: Record<string, string> = {
-  cv_download: "CV opened",
   contact_start: "Started the contact form",
   contact_sent: "Sent a message",
   nav_click: "Used the nav",

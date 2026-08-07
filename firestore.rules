@@ -59,8 +59,8 @@ service cloud.firestore {
       allow write: if onlyKey('depth') && request.resource.data.depth is map;
     }
 
-    // Interaction tallies: CV opens, preview opens, outbound clicks and the
-    // contact funnel. A single counter map keeps this to one document a day.
+    // Interaction tallies: preview opens, outbound clicks and the contact
+    // funnel. A single counter map keeps this to one document a day.
     match /events/{day} {
       allow read: if true;
       allow write: if onlyKey('e') && request.resource.data.e is map;

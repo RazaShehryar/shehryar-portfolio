@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { ArrowDown, FileText, Mail } from "lucide-react";
+import { ArrowDown, Mail } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/icons";
 import { trackEvent } from "@/lib/track-event";
 import { site, stats } from "@/lib/site";
@@ -130,18 +130,6 @@ export function Hero() {
                   className="inline-flex rounded-full border border-line px-6 py-3 text-sm transition-colors hover:border-accent/60 hover:text-accent"
                 >
                   Get in touch
-                </a>
-              </Magnetic>
-              <Magnetic strength={0.4}>
-                <a
-                  href={site.cv}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => trackEvent("cv_download")}
-                  className="inline-flex items-center gap-2 rounded-full border border-line px-6 py-3 text-sm transition-colors hover:border-accent/60 hover:text-accent"
-                >
-                  <FileText className="h-3.5 w-3.5" />
-                  CV
                 </a>
               </Magnetic>
               <div className="ml-1 flex items-center gap-1">
