@@ -10,8 +10,8 @@ import { trackEvent } from "@/lib/track-event";
 /**
  * Filters both halves of the projects page from one control.
  *
- * Nineteen projects in a fixed order means someone hiring for React Native
- * reads all nineteen to find the eleven that matter to them. The chips narrow
+ * Twenty-one projects in a fixed order means someone hiring for React Native
+ * reads all twenty-one to find the eleven that matter to them. The chips narrow
  * the scroll showcase and the grid together, so the page always answers one
  * question at a time.
  *
@@ -62,7 +62,7 @@ export function ProjectFilter() {
           <SectionHeading
             eyebrow="Projects"
             title="Things that shipped"
-            lead="Nineteen of them, going back to 2020. Four are in use right now, and those get the full treatment — keep scrolling and the screens move with you."
+            lead="Twenty-one of them, going back to 2020. Four are in use right now, and those get the full treatment — keep scrolling and the screens move with you."
           />
 
           <div className="mb-16 flex flex-wrap items-center gap-2">

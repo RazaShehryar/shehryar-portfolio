@@ -253,6 +253,36 @@ export type WorkCard = {
  * an app icon exists, that is what is shown rather than a stand-in mockup.
  */
 export const moreWork: WorkCard[] = [
+  // Neither is in a store yet, so no "Live" badge and no store links, and
+  // both sites send frame-ancestors 'none', so no in-page preview either.
+  {
+    slug: "doofer",
+    tags: ["Mobile", "Full-stack"],
+    name: "Doofer",
+    year: "2026",
+    role: "Sole engineer · iOS, Android, backend",
+    note: "A phone remote for Android TV, Google TV and Roku that can also turn the TV on, which most of them can't. It talks to the TV directly over your Wi-Fi, with no account and no server in between. Native on both platforms, with watch apps and widgets.",
+    stack: ["Swift", "SwiftUI", "Kotlin", "Jetpack Compose", "Protobuf", "Firebase"],
+    image: "/projects/doofer-remote.webp",
+    imageShape: "portrait",
+    icon: "/projects/doofer-icon.webp",
+    accent: "#3CC4D0",
+    links: [{ label: "doofer.app", href: "https://doofer.app" }],
+  },
+  {
+    slug: "skerrick",
+    tags: ["Mobile", "Full-stack"],
+    name: "Skerrick",
+    year: "2026",
+    role: "Sole engineer · iOS, Android, backend",
+    note: "Limits Reels, TikTok and Shorts to three minutes a visit instead of blocking them, and cuts you off mid-scroll. You can push past the cut-off, but each time you do, the next wait gets longer. Nothing leaves the phone unless you turn on backup.",
+    stack: ["Swift", "SwiftUI", "Kotlin", "Jetpack Compose", "Firebase", "RevenueCat"],
+    image: "/projects/skerrick-cutoff.webp",
+    imageShape: "portrait",
+    icon: "/projects/skerrick-icon.webp",
+    accent: "#D4FF4F",
+    links: [{ label: "skerrick.app", href: "https://skerrick.app" }],
+  },
   {
     slug: "securehire",
     tags: ["Mobile", "Web", "Full-stack"],
